@@ -16,9 +16,52 @@ export default async function handler(req, res) {
         const COZE_API_TOKEN = process.env.COZE_API_TOKEN || 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjMxOThhOThiLTZiNzEtNGNiZC04Mjc2LWIyMzJlZGYyZDY2NyJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIjRZNjB4SjY5V050V2ZGWHk1cFBYZ2hRM2R4eUhGeHQ3Il0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzY3ODE4NDkxLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NTkwNDAzMzg5Nzc5ODY5NzM3Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NTkyNzIyNjA3NjI4MDkxMzk4In0.azPRpBBRGtrTfDxpf4UvRPFkwsKATdOXOZPvALCg41lzsl9sSw1TDjxXfcOhSs78lERkd30uKCspv_RRBwxbyzLHjqPhrMAc-Kj_rd7ON8SxETHjcUbPePF5DVNi7YeaHYCpum86aCk8KikXrpVD8jQgfCnwIjMylXdGbvYkvPrYN5FW2QLIGYxPk_jT3jgo9Y0Pgav6UZqzI2F0zI9LBSAA8sa0HCt_xDmEGv3NR0U42tm_DRgzDJqI2x2nvVxwicghhXtWSP8mKPAD92LqCxLPJLRW4K6en6IugfVfLGSZyTkZ-ECSiizPMCyUbO9sEjK1dlrVMrDFftWupB2C8w';
         const COZE_API_URL = process.env.COZE_API_URL || 'https://q4y8jrbxy4.coze.site/stream_run';
         const COZE_PROJECT_ID = process.env.COZE_PROJECT_ID || '7590376721527013430';
+        const COZE_UPLOAD_URL = 'https://api.coze.cn/v1/files/upload';
 
         if (!COZE_API_TOKEN) {
             return res.status(500).json({ error: 'API Token not configured' });
+        }
+
+        // 辅助函数：上传文件到 Coze
+        async function uploadFileToCoze(base64Data, fileName, mimeType) {
+            try {
+                // 从 base64 data URL 中提取纯 base64 数据
+                const base64Content = base64Data.split(',')[1];
+                
+                // 转换为 Buffer
+                const buffer = Buffer.from(base64Content, 'base64');
+                
+                // 创建 FormData
+                const FormData = require('form-data');
+                const formData = new FormData();
+                formData.append('file', buffer, {
+                    filename: fileName,
+                    contentType: mimeType
+                });
+                formData.append('purpose', 'assistants_output');
+                
+                // 上传到 Coze
+                const response = await fetch(COZE_UPLOAD_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${COZE_API_TOKEN}`,
+                        ...formData.getHeaders()
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('File upload failed:', response.status, errorText);
+                    return null;
+                }
+                
+                const result = await response.json();
+                return result.data?.url || result.url;
+            } catch (error) {
+                console.error('Error uploading file to Coze:', error);
+                return null;
+            }
         }
 
         // 构建请求体
@@ -36,28 +79,18 @@ export default async function handler(req, res) {
         
         // 处理文件
         for (const file of files) {
-            console.log('Processing file:', file.name, 'type:', file.type, 'hasUrl:', !!file.fileUrl);
+            console.log('Processing file:', file.name, 'type:', file.type);
             
-            if (file.isImage) {
-                // 图片文件
-                if (file.fileUrl) {
-                    // 使用 Coze 文件 URL
-                    prompt.push({
-                        type: "image",
-                        content: {
-                            image_url: file.fileUrl
-                        }
-                    });
-                    console.log('Added image from URL:', file.name);
-                } else if (file.data) {
-                    // 使用 base64 data URL (fallback)
+            if (file.type && file.type.startsWith('image/')) {
+                // 图片文件：直接使用base64 data URL
+                if (file.data) {
                     prompt.push({
                         type: "image",
                         content: {
                             image_url: file.data
                         }
                     });
-                    console.log('Added image from base64:', file.name);
+                    console.log('Added image:', file.name);
                 }
             } else if (file.textContent) {
                 // 纯文本文件：直接添加内容
@@ -68,25 +101,29 @@ export default async function handler(req, res) {
                     }
                 });
                 console.log('Added text file content:', file.name);
-            } else if (file.fileUrl) {
-                // 其他文件（PDF, Word等）：使用 Coze 文件 URL
-                prompt.push({
-                    type: "file",
-                    content: {
-                        file_url: file.fileUrl,
-                        file_name: file.name
-                    }
-                });
-                console.log('Added file from URL:', file.name);
-            } else {
-                // 无法处理的文件
-                prompt.push({
-                    type: "text",
-                    content: {
-                        text: `\n【无法读取的文件：${file.name} (${(file.size / 1024).toFixed(2)} KB)】\n`
-                    }
-                });
-                console.log('Added placeholder for unreadable file:', file.name);
+            } else if (file.data) {
+                // 其他文件（PDF, Word等）：上传到 Coze 获取 URL
+                const fileUrl = await uploadFileToCoze(file.data, file.name, file.type);
+                
+                if (fileUrl) {
+                    prompt.push({
+                        type: "file",
+                        content: {
+                            file_url: fileUrl,
+                            file_name: file.name
+                        }
+                    });
+                    console.log('Added file from URL:', file.name, 'URL:', fileUrl);
+                } else {
+                    // 上传失败，添加占位符
+                    prompt.push({
+                        type: "text",
+                        content: {
+                            text: `\n【文件上传失败：${file.name}】\n`
+                        }
+                    });
+                    console.log('Failed to upload file:', file.name);
+                }
             }
         }
         
