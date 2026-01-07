@@ -2496,21 +2496,53 @@
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
             files.forEach(file => {
-                // 保存原始File对象和base64预览
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const fileData = {
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        data: event.target.result,
-                        file: file, // 保存原始File对象
-                        isImage: file.type.startsWith('image/')
+                if (file.type.startsWith('image/')) {
+                    // 图片文件：读取为base64
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const fileData = {
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            data: event.target.result,
+                            isImage: true
+                        };
+                        uploadedFiles.push(fileData);
+                        displayFilePreview(fileData, uploadedFiles.length - 1);
                     };
-                    uploadedFiles.push(fileData);
-                    displayFilePreview(fileData, uploadedFiles.length - 1);
-                };
-                reader.readAsDataURL(file);
+                    reader.readAsDataURL(file);
+                } else if (file.type === 'text/plain') {
+                    // 纯文本文件：读取文本内容
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const fileData = {
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            textContent: event.target.result,
+                            isImage: false
+                        };
+                        uploadedFiles.push(fileData);
+                        displayFilePreview(fileData, uploadedFiles.length - 1);
+                    };
+                    reader.readAsText(file);
+                } else {
+                    // 其他文件（Word, PDF等）：读取为base64，并提示用户
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const fileData = {
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            data: event.target.result,
+                            isImage: false,
+                            needsExtraction: true
+                        };
+                        uploadedFiles.push(fileData);
+                        displayFilePreview(fileData, uploadedFiles.length - 1);
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
             e.target.value = ''; // 清空输入，允许重复上传同一文件
         });
@@ -2741,47 +2773,21 @@
                 // 创建AbortController
                 currentAbortController = new AbortController();
                 
-                let response;
-                
-                // 如果有文件，使用multipart/form-data
-                if (files.length > 0) {
-                    const formData = new FormData();
-                    formData.append('message', message);
-                    
-                    // 添加文件（只上传第一个文件）
-                    if (files[0].file) {
-                        formData.append('file', files[0].file);
-                    } else if (files[0].data) {
-                        // 如果是base64，转换为Blob
-                        const base64Data = files[0].data.split(',')[1];
-                        const byteCharacters = atob(base64Data);
-                        const byteNumbers = new Array(byteCharacters.length);
-                        for (let i = 0; i < byteCharacters.length; i++) {
-                            byteNumbers[i] = byteCharacters.charCodeAt(i);
-                        }
-                        const byteArray = new Uint8Array(byteNumbers);
-                        const blob = new Blob([byteArray], { type: files[0].type });
-                        formData.append('file', blob, files[0].name);
-                    }
-                    
-                    response = await fetch('/api/upload', {
-                        method: 'POST',
-                        body: formData,
-                        signal: currentAbortController.signal
-                    });
-                } else {
-                    // 没有文件，使用JSON格式
-                    response = await fetch('/api/chat', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            query: message
-                        }),
-                        signal: currentAbortController.signal
-                    });
-                }
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: message,
+                        files: files.map(f => ({
+                            name: f.name,
+                            type: f.type,
+                            data: f.data
+                        }))
+                    }),
+                    signal: currentAbortController.signal
+                });
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -2857,12 +2863,18 @@
                 // 获取有效文件
                 const validFiles = uploadedFiles.filter(f => f !== null);
                 
-                // 添加用户消息
-                let displayMessage = message;
-                if (validFiles.length > 0) {
-                    displayMessage += ` 【附件: ${validFiles.map(f => f.name).join(', ')}】`;
+                // 构建完整消息（包含文本文件内容）
+                let fullMessage = message;
+                const textFiles = validFiles.filter(f => f.textContent);
+                if (textFiles.length > 0) {
+                    fullMessage += '\n\n【上传的文件内容】\n';
+                    textFiles.forEach(f => {
+                        fullMessage += `\n--- ${f.name} ---\n${f.textContent}\n`;
+                    });
                 }
-                addMessage(displayMessage || '【已上传文件】', 'user');
+                
+                // 添加用户消息
+                addMessage(message || '【已上传文件】', 'user');
                 input.value = '';
                 
                 // 清空文件列表和预览
@@ -2883,7 +2895,7 @@
 
                 try {
                     // 调用智能体API，带流式回调
-                    const reply = await sendMessageToAgent(message, (partialText) => {
+                    const reply = await sendMessageToAgent(fullMessage, (partialText) => {
                         if (shouldStop) return;
                         
                         // 移除“正在思考”消息（只移除一次）
