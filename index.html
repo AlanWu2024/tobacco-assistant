@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; script-src * 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; style-src * 'self' 'unsafe-inline' https: http: data:; img-src * 'self' 'unsafe-inline' https: http: data: blob:; font-src * 'self' 'unsafe-inline' https: http: data: blob:; connect-src * 'self' https: http:;">
-    <title>富铖新材料 - 智能出口助手 V2</title>
+    <title>富铖新材料 - 智能出口助手 V3 (支持 Word)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- mammoth.js 用于解析 Word 文档 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -148,38 +150,6 @@
             margin-bottom: 0.8rem;
         }
 
-        .message.assistant ul,
-        .message.assistant ol {
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .message.assistant li {
-            margin-bottom: 0.4rem;
-        }
-
-        .message.assistant code {
-            background: #f1f1f1;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        .message.assistant pre {
-            background: #282c34;
-            color: #abb2bf;
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 1rem 0;
-        }
-
-        .message.assistant pre code {
-            background: none;
-            padding: 0;
-            color: inherit;
-        }
-
         .thinking-message {
             align-self: flex-start;
             background: #f8f9fa;
@@ -203,14 +173,6 @@
             background: var(--primary-color);
             border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out both;
-        }
-
-        .thinking-dots span:nth-child(1) {
-            animation-delay: -0.32s;
-        }
-
-        .thinking-dots span:nth-child(2) {
-            animation-delay: -0.16s;
         }
 
         @keyframes bounce {
@@ -317,6 +279,23 @@
             color: var(--primary-color);
         }
 
+        .file-preview-item .file-name {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .file-preview-item .file-name .name {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-preview-item .file-name .size {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
         .file-preview-item .remove-file {
             background: #dc3545;
             color: white;
@@ -356,21 +335,6 @@
             transform: translateX(4px);
         }
 
-        .sidebar ul {
-            margin-left: 1.2rem;
-            margin-bottom: 1rem;
-        }
-
-        .sidebar li {
-            margin-bottom: 0.5rem;
-            color: var(--light-text);
-        }
-
-        .sidebar p {
-            color: var(--light-text);
-            font-size: 0.9rem;
-        }
-
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
@@ -386,7 +350,7 @@
 </head>
 <body>
     <nav class="navbar">
-        <h1>富铖新材料 - 智能出口助手</h1>
+        <h1>富铖新材料 - 智能出口助手 V3</h1>
     </nav>
 
     <div class="container">
@@ -395,29 +359,16 @@
             <button class="quick-btn" onclick="quickAction('帮我计算FOB报价')">💰 FOB报价计算</button>
             <button class="quick-btn" onclick="quickAction('帮我计算CIF报价')">🚢 CIF报价计算</button>
             <button class="quick-btn" onclick="quickAction('查询当前人民币对美元汇率')">💱 汇率查询</button>
-            <button class="quick-btn" onclick="quickAction('东南亚市场准入要求')">🌏 市场准入</button>
             <button class="quick-btn" onclick="quickAction('生成出口合同模板')">📄 合同生成</button>
             <button class="quick-btn" onclick="quickAction('物流方案设计')">📦 物流方案</button>
-            <button class="quick-btn" onclick="quickAction('关税合规检查')">📋 关税合规</button>
-            <button class="quick-btn" onclick="quickAction('竞品分析')">📊 竞品分析</button>
 
             <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e9ecef;">
-                <h3>支持功能</h3>
-                <ul>
-                    <li>Excel 数据分析</li>
-                    <li>PDF 文档解读</li>
-                    <li>合同智能审查</li>
-                    <li>多语言翻译</li>
-                    <li>实时联网搜索</li>
-                    <li>市场动态追踪</li>
-                </ul>
-            </div>
-
-            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e9ecef;">
-                <h3>文件格式支持</h3>
-                <p>✅ 文本文件 (.txt, .csv)<br>
-                   ✅ 图片文件 (.png, .jpg)<br>
-                   ⚠️ 其他格式（暂不支持）</p>
+                <h3>支持的文件格式</h3>
+                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                    ✅ Word 文档 (.docx)<br>
+                    ✅ 文本文件 (.txt, .csv)<br>
+                    ✅ 图片文件 (.png, .jpg)
+                </p>
             </div>
         </div>
 
@@ -436,11 +387,10 @@
                             <li>📊 <strong>报价计算</strong>：FOB、CIF 等多种贸易术语报价</li>
                             <li>💱 <strong>汇率查询</strong>：实时汇率换算和趋势分析</li>
                             <li>📄 <strong>合同生成</strong>：中英双语、中英印尼三语合同模板</li>
-                            <li>🌏 <strong>市场分析</strong>：东南亚市场准入和政策解读</li>
-                            <li>📦 <strong>物流方案</strong>：合规物流路线和成本优化</li>
+                            <li>📦 <strong>文件分析</strong>：支持 Word、Excel、文本等多种格式</li>
                             <li>📋 <strong>合规指导</strong>：关税计算、认证申请、政策预警</li>
                         </ul>
-                        <p style="margin-top: 1rem; color: #666;"><strong>💡 当前支持：</strong>文本文件（.txt）和图片文件可直接分析，其他格式请转换为文本后上传。</p>
+                        <p style="margin-top: 1rem; color: #666;"><strong>💡 新功能：</strong>现已支持 Word (.docx) 文件直接上传分析！</p>
                     </div>
                 </div>
             </div>
@@ -448,7 +398,7 @@
             <div class="file-preview-area" id="filePreviewArea"></div>
 
             <div class="chat-input">
-                <input type="file" id="fileInput" style="display: none;" accept=".txt,.csv,.png,.jpg,.jpeg">
+                <input type="file" id="fileInput" style="display: none;" accept=".docx,.doc,.txt,.csv,.png,.jpg,.jpeg">
                 <button class="file-upload-btn" onclick="document.getElementById('fileInput').click()">
                     <i class="fas fa-paperclip"></i>
                     上传文件
@@ -466,11 +416,13 @@
         let uploadedFiles = [];
         let isGenerating = false;
 
-        // 文件上传处理
+        // 文件上传处理（支持 Word 文档）
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
             
             files.forEach(file => {
+                console.log('开始处理文件:', file.name, 'type:', file.type);
+                
                 if (file.type.startsWith('image/')) {
                     // 图片文件：读取为base64
                     const reader = new FileReader();
@@ -499,8 +451,39 @@
                         updateFilePreview();
                     };
                     reader.readAsText(file);
+                } else if (file.name.endsWith('.docx') || file.type.includes('wordprocessingml')) {
+                    // Word 文档：使用 mammoth.js 解析
+                    console.log('检测到 Word 文档，开始解析...');
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const arrayBuffer = event.target.result;
+                        
+                        mammoth.extractRawText({ arrayBuffer: arrayBuffer })
+                            .then(function(result) {
+                                const textContent = result.value;
+                                console.log('Word 文档解析成功，文本长度:', textContent.length);
+                                
+                                uploadedFiles.push({
+                                    name: file.name,
+                                    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                    size: file.size,
+                                    textContent: textContent,
+                                    isImage: false,
+                                    isWord: true
+                                });
+                                updateFilePreview();
+                            })
+                            .catch(function(err) {
+                                console.error('Word 文档解析失败:', err);
+                                alert('Word 文档解析失败：' + err.message);
+                            });
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else if (file.name.endsWith('.doc')) {
+                    // 旧版 Word 文档（.doc）- 不支持
+                    alert('暂不支持旧版 Word 文档（.doc），请将其转换为 .docx 格式后再上传。\n\n转换方法：在 Word 中打开文件，选择"文件" → "另存为" → 选择"Word 文档 (*.docx)"');
                 } else {
-                    alert('当前版本仅支持 .txt、.csv 文本文件和 .png、.jpg 图片文件。请将文件转换为文本格式后上传。');
+                    alert('当前版本支持的文件格式：\n✅ Word 文档 (.docx)\n✅ 文本文件 (.txt, .csv)\n✅ 图片文件 (.png, .jpg)\n\n对于其他格式，请先转换为支持的格式。');
                 }
             });
             e.target.value = '';
@@ -515,13 +498,20 @@
                 const previewItem = document.createElement('div');
                 previewItem.className = 'file-preview-item';
                 
-                const icon = file.isImage ? 'fa-image' : 'fa-file-alt';
+                let icon;
+                if (file.isImage) {
+                    icon = 'fa-image';
+                } else if (file.isWord) {
+                    icon = 'fa-file-word';
+                } else {
+                    icon = 'fa-file-alt';
+                }
                 
                 previewItem.innerHTML = `
                     <div class="file-icon"><i class="fas ${icon}"></i></div>
-                    <div style="flex: 1; overflow: hidden;">
-                        <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${file.name}</div>
-                        <div style="font-size: 0.8rem; color: #666;">${(file.size / 1024).toFixed(2)} KB</div>
+                    <div class="file-name">
+                        <div class="name">${file.name}</div>
+                        <div class="size">${(file.size / 1024).toFixed(2)} KB</div>
                     </div>
                     <button class="remove-file" onclick="removeFile(${index})"><i class="fas fa-times"></i></button>
                 `;
