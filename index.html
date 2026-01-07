@@ -2862,6 +2862,10 @@
             if (message || hasFiles) {
                 // 获取有效文件
                 const validFiles = uploadedFiles.filter(f => f !== null);
+                console.log('=== Sending Message ===');
+                console.log('Message:', message);
+                console.log('Valid files count:', validFiles.length);
+                console.log('Files:', validFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
                 
                 // 构建完整消息（包含文本文件内容）
                 let fullMessage = message;
@@ -2894,7 +2898,7 @@
                 let lastMessageElement = null;
 
                 try {
-                    // 调用智能体API，带流式回调
+                    // 调用智能体API，带流式回调（传递文件数据）
                     const reply = await sendMessageToAgent(fullMessage, (partialText) => {
                         if (shouldStop) return;
                         
