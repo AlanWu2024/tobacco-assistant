@@ -1,4 +1,4 @@
-// Vercel Serverless Function
+// Vercel Serverless Function - 富铖智能助手API代理
 export default async function handler(req, res) {
     // 只允许POST请求
     if (req.method !== 'POST') {
@@ -6,14 +6,14 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { query } = req.body;
+        const { query, files = [] } = req.body;
 
-        if (!query) {
-            return res.status(400).json({ error: 'Query is required' });
+        if (!query && files.length === 0) {
+            return res.status(400).json({ error: 'Query or files are required' });
         }
 
-        // 从环境变量获取配置
-        const COZE_API_TOKEN = process.env.COZE_API_TOKEN;
+        // Coze API配置（使用最新Token）
+        const COZE_API_TOKEN = process.env.COZE_API_TOKEN || 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjMxOThhOThiLTZiNzEtNGNiZC04Mjc2LWIyMzJlZGYyZDY2NyJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIjRZNjB4SjY5V050V2ZGWHk1cFBYZ2hRM2R4eUhGeHQ3Il0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzY3ODE4NDkxLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NTkwNDAzMzg5Nzc5ODY5NzM3Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NTkyNzIyNjA3NjI4MDkxMzk4In0.azPRpBBRGtrTfDxpf4UvRPFkwsKATdOXOZPvALCg41lzsl9sSw1TDjxXfcOhSs78lERkd30uKCspv_RRBwxbyzLHjqPhrMAc-Kj_rd7ON8SxETHjcUbPePF5DVNi7YeaHYCpum86aCk8KikXrpVD8jQgfCnwIjMylXdGbvYkvPrYN5FW2QLIGYxPk_jT3jgo9Y0Pgav6UZqzI2F0zI9LBSAA8sa0HCt_xDmEGv3NR0U42tm_DRgzDJqI2x2nvVxwicghhXtWSP8mKPAD92LqCxLPJLRW4K6en6IugfVfLGSZyTkZ-ECSiizPMCyUbO9sEjK1dlrVMrDFftWupB2C8w';
         const COZE_API_URL = process.env.COZE_API_URL || 'https://q4y8jrbxy4.coze.site/stream_run';
         const COZE_PROJECT_ID = process.env.COZE_PROJECT_ID || '7590376721527013430';
 
@@ -21,21 +21,53 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'API Token not configured' });
         }
 
-        // 构建请求体
+        // 构建请求体（使用Coze的prompt格式）
+        const prompt = [];
+        
+        // 添加文本内容
+        if (query) {
+            prompt.push({
+                type: "text",
+                content: {
+                    text: query
+                }
+            });
+        }
+        
+        // 添加文件（图片和文档）
+        for (const file of files) {
+            if (file.type && file.type.startsWith('image/')) {
+                // 图片文件
+                prompt.push({
+                    type: "image",
+                    content: {
+                        image_url: file.data // base64 data URL
+                    }
+                });
+            } else {
+                // 其他文件（PDF, Word, TXT等）
+                prompt.push({
+                    type: "file",
+                    content: {
+                        file_url: file.data, // base64 data URL
+                        file_name: file.name
+                    }
+                });
+            }
+        }
+        
         const requestBody = {
             content: {
                 query: {
-                    prompt: [{
-                        type: "text",
-                        content: {
-                            text: query
-                        }
-                    }]
+                    prompt: prompt
                 }
             },
             type: "query",
             project_id: parseInt(COZE_PROJECT_ID)
         };
+
+        console.log('Calling Coze API:', COZE_API_URL);
+        console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
         // 调用Coze API
         const response = await fetch(COZE_API_URL, {
@@ -49,9 +81,10 @@ export default async function handler(req, res) {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Coze API error:', errorText);
+            console.error('Coze API error:', response.status, errorText);
             return res.status(response.status).json({ 
                 error: 'Coze API request failed',
+                status: response.status,
                 details: errorText
             });
         }
@@ -79,12 +112,13 @@ export default async function handler(req, res) {
         res.end();
 
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Server error:', error);
         
         if (!res.headersSent) {
             res.status(500).json({ 
                 error: 'Internal server error',
-                message: error.message 
+                message: error.message,
+                stack: error.stack
             });
         }
     }
