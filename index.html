@@ -2492,10 +2492,40 @@
          // 文件上传相关
         let uploadedFiles = [];
 
+        // Coze API 配置（用于文件上传）
+        const COZE_CONFIG = {
+            uploadURL: 'https://api.coze.cn/v1/files/upload',
+            apiKey: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjMxOThhOThiLTZiNzEtNGNiZC04Mjc2LWIyMzJlZGYyZDY2NyJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIjRZNjB4SjY5V050V2ZGWHk1cFBYZ2hRM2R4eUhGeHQ3Il0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzY3ODE4NDkxLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NTkwNDAzMzg5Nzc5ODY5NzM3Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NTkyNzIyNjA3NjI4MDkxMzk4In0.azPRpBBRGtrTfDxpf4UvRPFkwsKATdOXOZPvALCg41lzsl9sSw1TDjxXfcOhSs78lERkd30uKCspv_RRBwxbyzLHjqPhrMAc-Kj_rd7ON8SxETHjcUbPePF5DVNi7YeaHYCpum86aCk8KikXrpVD8jQgfCnwIjMylXdGbvYkvPrYN5FW2QLIGYxPk_jT3jgo9Y0Pgav6UZqzI2F0zI9LBSAA8sa0HCt_xDmEGv3NR0U42tm_DRgzDJqI2x2nvVxwicghhXtWSP8mKPAD92LqCxLPJLRW4K6en6IugfVfLGSZyTkZ-ECSiizPMCyUbO9sEjK1dlrVMrDFftWupB2C8w'
+        };
+
+        // 上传文件到 Coze
+        async function uploadFileToCoze(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('purpose', 'assistants_output');
+
+            const response = await fetch(COZE_CONFIG.uploadURL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${COZE_CONFIG.apiKey}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`文件上传失败: ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result.data?.url || result.url;
+        }
+
         // 文件上传处理
-        document.getElementById('fileInput').addEventListener('change', function(e) {
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
             const files = Array.from(e.target.files);
-            files.forEach(file => {
+            
+            for (const file of files) {
                 if (file.type.startsWith('image/')) {
                     // 图片文件：读取为base64
                     const reader = new FileReader();
@@ -2505,7 +2535,8 @@
                             type: file.type,
                             size: file.size,
                             data: event.target.result,
-                            isImage: true
+                            isImage: true,
+                            file: file // 保存原始 File 对象
                         };
                         uploadedFiles.push(fileData);
                         displayFilePreview(fileData, uploadedFiles.length - 1);
@@ -2520,30 +2551,34 @@
                             type: file.type,
                             size: file.size,
                             textContent: event.target.result,
-                            isImage: false
+                            isImage: false,
+                            file: file // 保存原始 File 对象
                         };
                         uploadedFiles.push(fileData);
                         displayFilePreview(fileData, uploadedFiles.length - 1);
                     };
                     reader.readAsText(file);
                 } else {
-                    // 其他文件（Word, PDF等）：读取为base64，并提示用户
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
+                    // 其他文件（Word, PDF等）：上传到 Coze 获取 URL
+                    try {
+                        const fileUrl = await uploadFileToCoze(file);
                         const fileData = {
                             name: file.name,
                             type: file.type,
                             size: file.size,
-                            data: event.target.result,
+                            fileUrl: fileUrl, // Coze 文件 URL
                             isImage: false,
-                            needsExtraction: true
+                            file: file // 保存原始 File 对象
                         };
                         uploadedFiles.push(fileData);
                         displayFilePreview(fileData, uploadedFiles.length - 1);
-                    };
-                    reader.readAsDataURL(file);
+                        console.log('File uploaded to Coze:', file.name, fileUrl);
+                    } catch (error) {
+                        console.error('Failed to upload file:', error);
+                        alert(`文件 "${file.name}" 上传失败: ${error.message}`);
+                    }
                 }
-            });
+            }
             e.target.value = ''; // 清空输入，允许重复上传同一文件
         });
 
@@ -2773,6 +2808,36 @@
                 // 创建AbortController
                 currentAbortController = new AbortController();
                 
+                // 处理文件：上传图片到 Coze
+                const processedFiles = [];
+                for (const file of files) {
+                    if (file.isImage && file.file && !file.fileUrl) {
+                        // 图片文件需要上传到 Coze
+                        try {
+                            const fileUrl = await uploadFileToCoze(file.file);
+                            processedFiles.push({
+                                name: file.name,
+                                type: file.type,
+                                fileUrl: fileUrl,
+                                isImage: true
+                            });
+                            console.log('Image uploaded to Coze:', file.name, fileUrl);
+                        } catch (error) {
+                            console.error('Failed to upload image:', error);
+                            // 即使上传失败，也尝试发送
+                            processedFiles.push({
+                                name: file.name,
+                                type: file.type,
+                                data: file.data, // 保留 base64
+                                isImage: true
+                            });
+                        }
+                    } else {
+                        // 其他文件直接使用
+                        processedFiles.push(file);
+                    }
+                }
+                
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
@@ -2780,10 +2845,13 @@
                     },
                     body: JSON.stringify({
                         query: message,
-                        files: files.map(f => ({
+                        files: processedFiles.map(f => ({
                             name: f.name,
                             type: f.type,
-                            data: f.data
+                            fileUrl: f.fileUrl || null, // Coze 文件 URL
+                            data: f.data || null, // base64 data (fallback)
+                            textContent: f.textContent || null, // 文本内容
+                            isImage: f.isImage || false
                         }))
                     }),
                     signal: currentAbortController.signal
