@@ -1,0 +1,13 @@
+{
+  "name": "tobacco-assistant",
+  "version": "1.0.0",
+  "description": "富铖新材料智能出口助手",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel"
+  },
+  "keywords": ["tobacco", "assistant", "ai", "export"],
+  "author": "富铖新材料",
+  "license": "MIT"
+}
