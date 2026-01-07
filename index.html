@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; script-src * 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; style-src * 'self' 'unsafe-inline' https: http: data:; img-src * 'self' 'unsafe-inline' https: http: data: blob:; font-src * 'self' 'unsafe-inline' https: http: data: blob:; connect-src * 'self' https: http:;">
-    <title>富铖新材料 - 智能出口助手 V3 (支持 Word)</title>
+    <title>富铖新材料 - 智能出口助手 V4 (完整版)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <!-- mammoth.js 用于解析 Word 文档 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- xlsx 用于解析 Excel 文件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -148,6 +150,25 @@
 
         .message.assistant p {
             margin-bottom: 0.8rem;
+        }
+
+        .message.assistant table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .message.assistant table th,
+        .message.assistant table td {
+            border: 1px solid #e9ecef;
+            padding: 0.5rem 0.8rem;
+            text-align: left;
+        }
+
+        .message.assistant table th {
+            background: #f8f9fa;
+            font-weight: 600;
         }
 
         .thinking-message {
@@ -335,6 +356,31 @@
             transform: translateX(4px);
         }
 
+        .support-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: #28a745;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        .format-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .format-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
@@ -350,7 +396,7 @@
 </head>
 <body>
     <nav class="navbar">
-        <h1>富铖新材料 - 智能出口助手 V3</h1>
+        <h1>富铖新材料 - 智能出口助手 V4</h1>
     </nav>
 
     <div class="container">
@@ -364,11 +410,28 @@
 
             <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e9ecef;">
                 <h3>支持的文件格式</h3>
-                <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
-                    ✅ Word 文档 (.docx)<br>
-                    ✅ 文本文件 (.txt, .csv)<br>
-                    ✅ 图片文件 (.png, .jpg)
-                </p>
+                <div class="format-list">
+                    <div class="format-item">
+                        <i class="fas fa-file-word" style="color: #2b579a;"></i>
+                        <span>Word 文档</span>
+                        <span class="support-badge">✓</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-excel" style="color: #217346;"></i>
+                        <span>Excel 表格</span>
+                        <span class="support-badge">✓</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-alt" style="color: #666;"></i>
+                        <span>文本文件</span>
+                        <span class="support-badge">✓</span>
+                    </div>
+                    <div class="format-item">
+                        <i class="fas fa-file-image" style="color: #e74c3c;"></i>
+                        <span>图片文件</span>
+                        <span class="support-badge">✓</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -387,10 +450,11 @@
                             <li>📊 <strong>报价计算</strong>：FOB、CIF 等多种贸易术语报价</li>
                             <li>💱 <strong>汇率查询</strong>：实时汇率换算和趋势分析</li>
                             <li>📄 <strong>合同生成</strong>：中英双语、中英印尼三语合同模板</li>
-                            <li>📦 <strong>文件分析</strong>：支持 Word、Excel、文本等多种格式</li>
+                            <li>📈 <strong>数据分析</strong>：Excel 数据分析和报表生成</li>
+                            <li>📝 <strong>文档审查</strong>：Word 合同和文档智能分析</li>
                             <li>📋 <strong>合规指导</strong>：关税计算、认证申请、政策预警</li>
                         </ul>
-                        <p style="margin-top: 1rem; color: #666;"><strong>💡 新功能：</strong>现已支持 Word (.docx) 文件直接上传分析！</p>
+                        <p style="margin-top: 1rem; color: #666;"><strong>🎉 全面支持：</strong>Word (.docx)、Excel (.xlsx, .xls)、文本文件、图片文件！</p>
                     </div>
                 </div>
             </div>
@@ -398,7 +462,7 @@
             <div class="file-preview-area" id="filePreviewArea"></div>
 
             <div class="chat-input">
-                <input type="file" id="fileInput" style="display: none;" accept=".docx,.doc,.txt,.csv,.png,.jpg,.jpeg">
+                <input type="file" id="fileInput" style="display: none;" accept=".docx,.doc,.xlsx,.xls,.txt,.csv,.png,.jpg,.jpeg">
                 <button class="file-upload-btn" onclick="document.getElementById('fileInput').click()">
                     <i class="fas fa-paperclip"></i>
                     上传文件
@@ -416,12 +480,12 @@
         let uploadedFiles = [];
         let isGenerating = false;
 
-        // 文件上传处理（支持 Word 文档）
+        // 文件上传处理（支持 Word、Excel、文本、图片）
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
             
             files.forEach(file => {
-                console.log('开始处理文件:', file.name, 'type:', file.type);
+                console.log('开始处理文件:', file.name, 'type:', file.type, 'size:', file.size);
                 
                 if (file.type.startsWith('image/')) {
                     // 图片文件：读取为base64
@@ -482,8 +546,55 @@
                 } else if (file.name.endsWith('.doc')) {
                     // 旧版 Word 文档（.doc）- 不支持
                     alert('暂不支持旧版 Word 文档（.doc），请将其转换为 .docx 格式后再上传。\n\n转换方法：在 Word 中打开文件，选择"文件" → "另存为" → 选择"Word 文档 (*.docx)"');
+                } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    // Excel 文件：使用 xlsx.js 解析
+                    console.log('检测到 Excel 文件，开始解析...');
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const arrayBuffer = event.target.result;
+                        
+                        try {
+                            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                            console.log('Excel 文件解析成功，工作表数量:', workbook.SheetNames.length);
+                            
+                            // 读取所有工作表
+                            let allSheetsText = '';
+                            workbook.SheetNames.forEach((sheetName, index) => {
+                                const worksheet = workbook.Sheets[sheetName];
+                                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                                
+                                if (jsonData.length > 0) {
+                                    allSheetsText += `\n===== 工作表 ${index + 1}: ${sheetName} =====\n`;
+                                    
+                                    // 转换为表格格式的文本
+                                    jsonData.forEach(row => {
+                                        if (row && row.length > 0) {
+                                            const rowText = row.map(cell => cell !== null && cell !== undefined ? String(cell) : '').join('\t');
+                                            allSheetsText += rowText + '\n';
+                                        }
+                                    });
+                                }
+                            });
+                            
+                            console.log('Excel 解析完成，文本长度:', allSheetsText.length);
+                            
+                            uploadedFiles.push({
+                                name: file.name,
+                                type: file.name.endsWith('.xlsx') ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/vnd.ms-excel',
+                                size: file.size,
+                                textContent: allSheetsText,
+                                isImage: false,
+                                isExcel: true
+                            });
+                            updateFilePreview();
+                        } catch (err) {
+                            console.error('Excel 文件解析失败:', err);
+                            alert('Excel 文件解析失败：' + err.message);
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
                 } else {
-                    alert('当前版本支持的文件格式：\n✅ Word 文档 (.docx)\n✅ 文本文件 (.txt, .csv)\n✅ 图片文件 (.png, .jpg)\n\n对于其他格式，请先转换为支持的格式。');
+                    alert('当前版本支持的文件格式：\n✅ Word 文档 (.docx)\n✅ Excel 表格 (.xlsx, .xls)\n✅ 文本文件 (.txt, .csv)\n✅ 图片文件 (.png, .jpg)\n\n对于其他格式，请先转换为支持的格式。');
                 }
             });
             e.target.value = '';
@@ -500,9 +611,11 @@
                 
                 let icon;
                 if (file.isImage) {
-                    icon = 'fa-image';
+                    icon = 'fa-file-image';
                 } else if (file.isWord) {
                     icon = 'fa-file-word';
+                } else if (file.isExcel) {
+                    icon = 'fa-file-excel';
                 } else {
                     icon = 'fa-file-alt';
                 }
