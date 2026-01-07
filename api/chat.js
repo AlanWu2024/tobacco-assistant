@@ -66,7 +66,11 @@ export default async function handler(req, res) {
             project_id: parseInt(COZE_PROJECT_ID)
         };
 
-        console.log('Calling Coze API:', COZE_API_URL);
+        console.log('=== Coze API Request ===' );
+        console.log('API URL:', COZE_API_URL);
+        console.log('Query:', query);
+        console.log('Files count:', files.length);
+        console.log('Prompt items:', prompt.length);
         console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
         // 调用Coze API
