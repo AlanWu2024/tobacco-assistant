@@ -1,84 +1,125 @@
+import formidable from 'formidable';
+import fs from 'fs';
+import FormData from 'form-data';
+
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+};
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const formData = await parseMultipartForm(req);
-        const message = formData.fields.message || '';
-        const file = formData.files.file;
+        // 解析上传的文件
+        const form = formidable({});
+        const [fields, files] = await form.parse(req);
+
+        const message = fields.message?.[0] || '';
+        const file = files.file?.[0];
 
         if (!file) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        // 从环境变量获取配置
-        const LOCAL_API_URL = process.env.LOCAL_API_URL || 'http://localhost:5000';
+        // 从环境变量获取Coze配置
+        const COZE_API_TOKEN = process.env.COZE_API_TOKEN;
+        const COZE_BOT_ID = process.env.COZE_BOT_ID;
 
-        // 创建新的FormData发送到本地API
-        const FormData = require('form-data');
-        const fs = require('fs');
-        const uploadFormData = new FormData();
-        
-        uploadFormData.append('message', message);
-        uploadFormData.append('file', fs.createReadStream(file.filepath), {
+        if (!COZE_API_TOKEN || !COZE_BOT_ID) {
+            throw new Error('Missing Coze configuration');
+        }
+
+        // 步骤1: 上传文件到Coze
+        const formData = new FormData();
+        formData.append('file', fs.createReadStream(file.filepath), {
             filename: file.originalFilename,
             contentType: file.mimetype
         });
 
-        // 调用本地API的upload_and_run接口
-        const fetch = (await import('node-fetch')).default;
-        const response = await fetch(`${LOCAL_API_URL}/upload_and_run`, {
+        const uploadResponse = await fetch('https://api.coze.cn/v1/files/upload', {
             method: 'POST',
-            body: uploadFormData,
-            headers: uploadFormData.getHeaders()
+            headers: {
+                'Authorization': `Bearer ${COZE_API_TOKEN}`,
+                ...formData.getHeaders()
+            },
+            body: formData
         });
 
-        if (!response.ok) {
-            throw new Error(`Local API error! status: ${response.status}`);
+        if (!uploadResponse.ok) {
+            const errorText = await uploadResponse.text();
+            console.error('Coze upload error:', errorText);
+            throw new Error(`Failed to upload file to Coze: ${uploadResponse.status}`);
         }
 
-        // 设置SSE响应头
+        const uploadResult = await uploadResponse.json();
+        
+        if (uploadResult.code !== 0) {
+            throw new Error(`Coze upload failed: ${uploadResult.msg}`);
+        }
+
+        const fileId = uploadResult.data.id;
+        console.log('File uploaded to Coze, file_id:', fileId);
+
+        // 步骤2: 使用file_id发起对话
+        const chatResponse = await fetch('https://api.coze.cn/v1/chat', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${COZE_API_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                bot_id: COZE_BOT_ID,
+                user_id: `user_${Date.now()}`,
+                stream: true,
+                auto_save_history: true,
+                additional_messages: [
+                    {
+                        role: 'user',
+                        content: message,
+                        content_type: 'object_string',
+                        object_string: {
+                            type: 'file',
+                            file_id: fileId,
+                            file_url: ''
+                        }
+                    }
+                ]
+            })
+        });
+
+        if (!chatResponse.ok) {
+            const errorText = await chatResponse.text();
+            console.error('Coze chat error:', errorText);
+            throw new Error(`Failed to chat with Coze: ${chatResponse.status}`);
+        }
+
+        // 步骤3: 流式转发响应
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
 
-        // 流式转发响应
-        const reader = response.body;
-        reader.on('data', (chunk) => {
+        for await (const chunk of chatResponse.body) {
             res.write(chunk);
-        });
+        }
 
-        reader.on('end', () => {
-            res.end();
-        });
+        res.end();
 
-        reader.on('error', (error) => {
-            console.error('Stream error:', error);
-            res.end();
-        });
+        // 清理临时文件
+        try {
+            fs.unlinkSync(file.filepath);
+        } catch (err) {
+            console.error('Failed to delete temp file:', err);
+        }
 
     } catch (error) {
         console.error('Error in upload handler:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            error: '服务暂时无法使用，请稍后再试。',
+            details: error.message 
+        });
     }
 }
-
-// 简单的multipart/form-data解析
-async function parseMultipartForm(req) {
-    const formidable = require('formidable');
-    const form = formidable({ multiples: false });
-
-    return new Promise((resolve, reject) => {
-        form.parse(req, (err, fields, files) => {
-            if (err) reject(err);
-            else resolve({ fields, files });
-        });
-    });
-}
-
-export const config = {
-    api: {
-        bodyParser: false, // 禁用默认body解析，使用formidable
-    },
-};
