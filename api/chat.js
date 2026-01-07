@@ -6,10 +6,10 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { query, files = [] } = req.body;
+        const { query } = req.body;
 
-        if (!query && files.length === 0) {
-            return res.status(400).json({ error: 'Query or files are required' });
+        if (!query) {
+            return res.status(400).json({ error: 'Query is required' });
         }
 
         // 从环境变量获取配置
@@ -22,44 +22,15 @@ export default async function handler(req, res) {
         }
 
         // 构建请求体
-        const prompt = [];
-        
-        // 添加文本内容
-        if (query) {
-            prompt.push({
-                type: "text",
-                content: {
-                    text: query
-                }
-            });
-        }
-        
-        // 添加文件（图片和文档）
-        for (const file of files) {
-            if (file.type && file.type.startsWith('image/')) {
-                // 图片文件
-                prompt.push({
-                    type: "image",
-                    content: {
-                        image_url: file.data // base64 data URL
-                    }
-                });
-            } else {
-                // 其他文件（PDF, Word, TXT等）
-                prompt.push({
-                    type: "file",
-                    content: {
-                        file_url: file.data, // base64 data URL
-                        file_name: file.name
-                    }
-                });
-            }
-        }
-        
         const requestBody = {
             content: {
                 query: {
-                    prompt: prompt
+                    prompt: [{
+                        type: "text",
+                        content: {
+                            text: query
+                        }
+                    }]
                 }
             },
             type: "query",
