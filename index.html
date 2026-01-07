@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>富铖新材料 - 智能出口助手</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Markdown渲染库 -->
-    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
-    <!-- 代码高亮库 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -33,11 +28,6 @@
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
             --shadow-glow: 0 0 30px rgba(0, 86, 179, 0.3);
-        }
-
-        html {
-            scroll-behavior: smooth;
-            scroll-padding-top: 80px;
         }
 
         body {
@@ -68,7 +58,6 @@
         }
 
         .navbar-container {
-            position: relative;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -243,8 +232,8 @@
         /* AI出口助手主界面 */
         .assistant-container {
             display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 1.5rem;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
             margin-bottom: 3rem;
         }
 
@@ -357,158 +346,13 @@
             color: var(--text-color);
             border-bottom-left-radius: 6px;
             border: 2px solid #e8f0fe;
-            position: relative;
-            max-width: 100%;
-            width: 100%;
-        }
-
-        /* Markdown样式 */
-        .message.assistant h1,
-        .message.assistant h2,
-        .message.assistant h3 {
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .message.assistant h1 { font-size: 1.8rem; }
-        .message.assistant h2 { font-size: 1.5rem; }
-        .message.assistant h3 { font-size: 1.2rem; }
-
-        .message.assistant p {
-            margin-bottom: 0.8rem;
-            line-height: 1.8;
-        }
-
-        .message.assistant strong {
-            font-weight: 700;
-            color: var(--primary-dark);
-        }
-
-        .message.assistant em {
-            font-style: italic;
-            color: var(--light-text);
-        }
-
-        .message.assistant ul,
-        .message.assistant ol {
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .message.assistant li {
-            margin-bottom: 0.5rem;
-            line-height: 1.8;
-        }
-
-        .message.assistant ul li {
-            list-style-type: disc;
-        }
-
-        .message.assistant ol li {
-            list-style-type: decimal;
-        }
-
-        .message.assistant code {
-            background: #f5f5f5;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            color: #d63384;
-        }
-
-        .message.assistant pre {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 1rem 0;
-            border: 1px solid #e8e8e8;
-        }
-
-        .message.assistant pre code {
-            background: none;
-            padding: 0;
-            color: inherit;
-            font-size: 0.9rem;
-        }
-
-        .message.assistant table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .message.assistant table th {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-            color: white;
-            padding: 0.8rem;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .message.assistant table td {
-            padding: 0.8rem;
-            border: 1px solid #e8e8e8;
-        }
-
-        .message.assistant table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-
-        .message.assistant table tr:hover {
-            background: #e8f0fe;
-        }
-
-        .message.assistant blockquote {
-            border-left: 4px solid var(--primary-color);
-            padding-left: 1rem;
-            margin: 1rem 0;
-            color: var(--light-text);
-            font-style: italic;
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 4px;
-        }
-
-        /* 复制按钮 */
-        .copy-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: rgba(0, 86, 179, 0.1);
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            color: var(--primary-color);
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .copy-btn:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .copy-btn.copied {
-            background: #20c997;
-            color: white;
         }
 
         .message-time {
             font-size: 0.75rem;
             opacity: 0.7;
             margin-top: 0.8rem;
-            margin-bottom: 0.5rem;
             text-align: right;
-            padding-right: 1rem;
         }
 
         .chat-input {
@@ -556,174 +400,6 @@
         .chat-input button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
-        }
-
-        /* 控制按钮区域 */
-        .control-buttons {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .control-btn {
-            background: rgba(0, 86, 179, 0.1);
-            border: none;
-            padding: 0.8rem 1.2rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--primary-color);
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .control-btn:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .control-btn.stop {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-        }
-
-        .control-btn.stop:hover {
-            background: #dc3545;
-            color: white;
-        }
-
-        .control-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* 文件上传按钮 */
-        .file-upload-btn {
-            background: rgba(32, 201, 151, 0.1);
-            border: none;
-            padding: 0.8rem 1.2rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--accent-color);
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .file-upload-btn:hover {
-            background: var(--accent-color);
-            color: white;
-        }
-
-        .file-upload-input {
-            display: none;
-        }
-
-        /* 文件预览区域 */
-        .file-preview-area {
-            padding: 1rem 2rem;
-            background: #f8f9fa;
-            border-top: 1px solid #e8e8e8;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .file-preview-item {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.8rem 1rem;
-            background: white;
-            border: 2px solid #e8e8e8;
-            border-radius: 12px;
-            transition: all 0.3s;
-        }
-
-        .file-preview-item:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 2px 8px rgba(0, 86, 179, 0.1);
-        }
-
-        .file-preview-item img {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .file-preview-item .file-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 86, 179, 0.1);
-            border-radius: 6px;
-            font-size: 1.2rem;
-            color: var(--primary-color);
-        }
-
-        .file-preview-item .file-name {
-            font-size: 0.9rem;
-            color: #333;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .file-preview-item .remove-file {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 24px;
-            height: 24px;
-            background: #dc3545;
-            color: white;
-            border: 2px solid white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s;
-        }
-
-        .file-preview-item .remove-file:hover {
-            background: #c82333;
-            transform: scale(1.1);
-        }
-
-        /* 下载按钮 */
-        .download-btn {
-            position: absolute;
-            bottom: 0.5rem;
-            right: 0.5rem;
-            background: rgba(32, 201, 151, 0.1);
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            color: var(--accent-color);
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .download-btn:hover {
-            background: var(--accent-color);
-            color: white;
         }
 
         .chat-input button:active {
@@ -1615,434 +1291,6 @@
             0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
             40% { transform: scale(1); opacity: 1; }
         }
-
-        /* ==================== 响应式设计 ==================== */
-
-        /* 平板端 (768px - 1200px) */
-        @media (max-width: 1200px) {
-            .assistant-container {
-                grid-template-columns: 1fr 320px;
-                gap: 1rem;
-            }
-
-            .welcome-banner {
-                padding: 2.5rem 2rem;
-            }
-
-            .welcome-banner h1 {
-                font-size: 2.2rem;
-            }
-
-            .welcome-banner p {
-                font-size: 1rem;
-            }
-
-            .stat-number {
-                font-size: 2rem;
-            }
-
-            .quick-actions-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-            }
-
-            .action-btn {
-                padding: 1rem;
-                font-size: 0.8rem;
-            }
-        }
-
-        /* 手机端 (<768px) */
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 0.6rem 1rem;
-            }
-
-            .logo-text h1 {
-                font-size: 1.1rem;
-            }
-
-            .logo-text p {
-                font-size: 0.6rem;
-            }
-
-            .nav-menu {
-                display: none;
-            }
-
-            .main-content {
-                padding: 1rem;
-                margin-top: 70px;
-            }
-
-            .welcome-banner {
-                padding: 2rem 1.5rem;
-                margin-bottom: 2rem;
-            }
-
-            .welcome-banner h1 {
-                font-size: 1.8rem;
-                margin-bottom: 1rem;
-            }
-
-            .welcome-banner p {
-                font-size: 0.9rem;
-                line-height: 1.6;
-            }
-
-            .welcome-stats {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-
-            .stat-number {
-                font-size: 1.8rem;
-            }
-
-            .stat-label {
-                font-size: 0.8rem;
-            }
-
-            /* 单栏布局 */
-            .assistant-container {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .chat-area {
-                height: 60vh;
-            }
-
-            .chat-header {
-                padding: 1rem 1.5rem;
-            }
-
-            .chat-header h2 {
-                font-size: 1.1rem;
-            }
-
-            .chat-messages {
-                padding: 1rem;
-                gap: 1rem;
-            }
-
-            .message {
-                max-width: 85%;
-                padding: 1rem;
-                font-size: 0.9rem;
-            }
-
-            .message.assistant {
-                max-width: 100%;
-                width: 100%;
-            }
-
-            .message.assistant h1 { font-size: 1.4rem; }
-            .message.assistant h2 { font-size: 1.2rem; }
-            .message.assistant h3 { font-size: 1rem; }
-
-            .copy-btn,
-            .download-btn {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.75rem;
-                position: static;
-                display: block;
-                margin-top: 0.5rem;
-                width: fit-content;
-            }
-
-            .chat-input {
-                padding: 0.8rem;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.8rem;
-                align-items: center;
-            }
-
-            .chat-input input[type="text"] {
-                flex: 1 1 100%;
-                width: 100%;
-                padding: 0.8rem 1rem;
-                font-size: 0.9rem;
-                order: 1;
-            }
-
-            .file-upload-btn {
-                width: 48px;
-                height: 48px;
-                min-width: 48px;
-                min-height: 48px;
-                max-width: 48px;
-                max-height: 48px;
-                padding: 0;
-                border-radius: 50%;
-                font-size: 1.3rem;
-                order: 2;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-                margin-right: auto;
-            }
-
-            .file-upload-btn i {
-                margin: 0;
-            }
-
-            .chat-input #sendBtn {
-                width: 48px;
-                height: 48px;
-                min-width: 48px;
-                min-height: 48px;
-                max-width: 48px;
-                max-height: 48px;
-                padding: 0;
-                border-radius: 50%;
-                font-size: 1.3rem;
-                order: 3;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-                margin-left: auto;
-            }
-
-            .chat-input #sendBtn i {
-                margin: 0;
-            }
-
-            .file-upload-btn .btn-text,
-            .chat-input #sendBtn .btn-text {
-                display: none;
-            }
-
-            /* 文件预览区域移动端 */
-            .file-preview-area {
-                padding: 0.8rem;
-                gap: 0.6rem;
-            }
-
-            .file-preview-item {
-                padding: 0.6rem 0.8rem;
-            }
-
-            .file-preview-item .file-name {
-                font-size: 0.85rem;
-                max-width: 120px;
-            }
-
-            /* 手机端图片显示缩略图 */
-            .file-preview-item.image-preview .file-name {
-                display: none;
-            }
-
-            .file-preview-item.image-preview img {
-                width: 60px;
-                height: 60px;
-            }
-
-            .control-btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 0.85rem;
-            }
-
-            .control-buttons {
-                flex: 1;
-                justify-content: flex-start;
-            }
-
-            /* 快捷功能区域 */
-            .quick-actions {
-                height: auto;
-                max-height: 50vh;
-                padding: 1.5rem;
-            }
-
-            .section-title {
-                font-size: 1rem;
-            }
-
-            .quick-actions-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.6rem;
-            }
-
-            .action-btn {
-                padding: 0.8rem;
-                font-size: 0.75rem;
-            }
-
-            .action-btn i {
-                font-size: 1rem;
-            }
-
-            .market-info {
-                padding: 1rem;
-            }
-
-            .market-info h4 {
-                font-size: 0.9rem;
-            }
-
-            .market-info-item {
-                font-size: 0.8rem;
-            }
-        }
-
-        /* 小手机 (<480px) */
-        @media (max-width: 480px) {
-            .welcome-banner h1 {
-                font-size: 1.5rem;
-            }
-
-            .welcome-banner p {
-                font-size: 0.85rem;
-            }
-
-            .welcome-stats {
-                display: none;  /* 隐藏统计数据 */
-            }
-
-            .welcome-banner {
-                padding: 2rem 1rem;  /* 减小padding */
-            }
-
-            .chat-area {
-                height: 75vh;  /* 增加高度，更方便对话 */
-            }
-
-            .message {
-                max-width: 90%;
-                padding: 0.8rem;
-                font-size: 0.85rem;
-            }
-
-            .message.assistant {
-                max-width: 100%;
-                width: 100%;
-            }
-
-            .message-time {
-                padding-right: 4rem;
-            }
-
-            .quick-actions-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .action-btn {
-                padding: 1rem;
-                font-size: 0.8rem;
-            }
-        }
-
-        /* 触摸优化 */
-        @media (hover: none) and (pointer: coarse) {
-            .action-btn,
-            .chat-input button,
-            .control-btn,
-            .file-upload-btn,
-            .copy-btn,
-            .download-btn {
-                min-height: 44px;
-                min-width: 44px;
-            }
-
-            .nav-menu a {
-                padding: 0.8rem 1.5rem;
-            }
-        }
-        /* 汉堡菜单 */
-        .mobile-menu-btn {
-            display: none;
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 1.8rem;
-            color: var(--primary-color);
-            cursor: pointer;
-            padding: 0.5rem;
-            z-index: 1001;
-        }
-
-        .mobile-nav-menu {
-            display: none;
-            position: fixed;
-            top: 70px;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            z-index: 999;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .mobile-nav-menu.active {
-            max-height: 400px;
-        }
-
-        .mobile-nav-menu ul {
-            list-style: none;
-            padding: 1rem 0;
-        }
-
-        .mobile-nav-menu li {
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .mobile-nav-menu a {
-            display: block;
-            padding: 1rem 2rem;
-            color: #333;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .mobile-nav-menu a:hover,
-        .mobile-nav-menu a.active {
-            background: linear-gradient(90deg, rgba(0, 86, 179, 0.1), rgba(23, 162, 184, 0.1));
-            color: var(--primary-color);
-        }
-
-        /* 手机端显示汉堡菜单 */
-        @media (max-width: 768px) {
-            .nav-menu {
-                display: none;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .mobile-nav-menu {
-                display: block;
-            }
-        }
-        /* 响应式文字 */
-        .mobile-text {
-            display: none;
-        }
-        
-        .desktop-text {
-            display: inline;
-        }
-        
-        @media (max-width: 768px) {
-            .mobile-text {
-                display: inline;
-            }
-            
-            .desktop-text {
-                display: none;
-            }
-        }
     </style>
 </head>
 <body>
@@ -2064,20 +1312,8 @@
                 <li><a href="#responsibility">企业责任</a></li>
                 <li><a href="#global">全球布局</a></li>
             </ul>
-            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
         </div>
     </nav>
-    <!-- 移动端菜单 -->
-    <div class="mobile-nav-menu" id="mobileNavMenu">
-        <ul>
-            <li><a href="#assistant" class="active" onclick="closeMobileMenu()">智能助手</a></li>
-            <li><a href="#about" onclick="closeMobileMenu()">企业介绍</a></li>
-            <li><a href="#products" onclick="closeMobileMenu()">产品中心</a></li>
-            <li><a href="#strategy" onclick="closeMobileMenu()">战略发展</a></li>
-            <li><a href="#responsibility" onclick="closeMobileMenu()">企业责任</a></li>
-            <li><a href="#global" onclick="closeMobileMenu()">全球布局</a></li>
-        </ul>
-    </div>
 
     <!-- 主内容 -->
     <main class="main-content">
@@ -2121,35 +1357,14 @@
                             <p>📊 <strong>报价计算</strong> • 📝 <strong>合同生成</strong> • 💱 <strong>汇率查询</strong> • 📦 <strong>合规物流</strong></p>
                             <p>📈 <strong>市场分析</strong> • 💰 <strong>价格查询</strong> • 🏢 <strong>竞品分析</strong> • 🚢 <strong>贸易渠道</strong></p>
                             <p>📋 <strong>关税服务</strong> • ✅ <strong>认证指导</strong> • ⚠️ <strong>政策预警</strong> • 🌐 <strong>联网搜索</strong></p>
-                            <p><span class="desktop-text">请点击右侧快捷功能</span><span class="mobile-text">请点击下方快捷功能</span>或直接输入您的问题，我将为您提供专业的出口业务支持！</p>
+                            <p>请点击右侧快捷功能或直接输入您的问题，我将为您提供专业的出口业务支持！</p>
                             <div class="message-time">刚刚</div>
                         </div>
                     </div>
-                    <!-- 文件预览区域 -->
-                    <div class="file-preview-area" id="filePreviewArea" style="display: none;"></div>
                     <div class="chat-input">
-                        <!-- 文件上传 -->
-                        <input type="file" id="fileInput" class="file-upload-input" accept="image/*,.pdf,.doc,.docx,.txt" />
-                        <button class="file-upload-btn" onclick="document.getElementById('fileInput').click()">
-                            <i class="fas fa-plus"></i><span class="btn-text"> 上传</span>
-                        </button>
-                        
-                        <!-- 输入框 -->
                         <input type="text" id="chatInput" placeholder="请输入您的问题，例如：帮我计算FOB报价..." />
-                        
-                        <!-- 控制按钮 -->
-                        <div class="control-buttons">
-                            <button id="pauseBtn" class="control-btn" onclick="togglePause()" style="display:none;">
-                                <i class="fas fa-pause"></i> 暂停
-                            </button>
-                            <button id="stopBtn" class="control-btn stop" onclick="stopGeneration()" style="display:none;">
-                                <i class="fas fa-stop"></i> 停止
-                            </button>
-                        </div>
-                        
-                        <!-- 发送按钮 -->
-                        <button id="sendBtn" onclick="sendMessage()">
-                            <i class="fas fa-arrow-up"></i><span class="btn-text"> 发送</span>
+                        <button onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i> 发送
                         </button>
                     </div>
                 </div>
@@ -2218,7 +1433,30 @@
                         </button>
                     </div>
 
-
+                    <!-- 市场信息卡片 -->
+                    <div class="market-info">
+                        <h4><i class="fas fa-chart-pie"></i> 东南亚市场快讯</h4>
+                        <div class="market-info-item">
+                            <span class="market-info-label">印尼盾汇率</span>
+                            <span class="market-info-value">1 CNY = 2,195 IDR <i class="fas fa-arrow-up market-up"></i></span>
+                        </div>
+                        <div class="market-info-item">
+                            <span class="market-info-label">新元汇率</span>
+                            <span class="market-info-value">1 CNY = 0.19 SGD <i class="fas fa-arrow-down market-down"></i></span>
+                        </div>
+                        <div class="market-info-item">
+                            <span class="market-info-label">印尼利率</span>
+                            <span class="market-info-value">6.00%</span>
+                        </div>
+                        <div class="market-info-item">
+                            <span class="market-info-label">新加坡利率</span>
+                            <span class="market-info-value">3.50%</span>
+                        </div>
+                        <div class="market-info-item">
+                            <span class="market-info-label">市场趋势</span>
+                            <span class="market-info-value market-up">稳步增长 ↑</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -2419,25 +1657,16 @@
                 <p>拓展国际市场，服务全球客户</p>
             </div>
             <div class="global-map">
-                <div style="text-align: center; padding: 3rem;">
-                    <svg width="400" height="400" viewBox="0 0 400 400" style="max-width: 400px; width: 100%; height: auto; filter: drop-shadow(0 10px 30px rgba(0, 86, 179, 0.3));">
-                        <!-- 地球背景 -->
-                        <circle cx="200" cy="200" r="180" fill="#E3F2FD" />
-                        <!-- 海洋 -->
-                        <circle cx="200" cy="200" r="170" fill="#90CAF9" />
-                        <!-- 大陆轮廓 -->
-                        <path d="M 150 80 Q 180 70 200 80 Q 220 90 240 85 L 250 100 Q 245 120 250 140 L 240 160 Q 230 170 220 165 L 200 170 Q 180 175 170 165 L 160 150 Q 155 130 150 110 Z" fill="#0056B3" opacity="0.8" />
-                        <path d="M 100 180 Q 120 170 140 180 L 150 200 Q 145 220 140 240 L 130 250 Q 115 245 105 235 L 95 215 Q 90 200 100 180 Z" fill="#0056B3" opacity="0.8" />
-                        <path d="M 260 200 Q 280 190 300 200 L 310 220 Q 305 240 295 255 L 280 265 Q 265 260 255 250 L 250 230 Q 255 210 260 200 Z" fill="#0056B3" opacity="0.8" />
-                        <path d="M 180 280 Q 200 270 220 280 L 230 300 Q 225 320 215 330 L 200 335 Q 185 330 175 320 L 170 300 Q 175 285 180 280 Z" fill="#0056B3" opacity="0.8" />
-                        <!-- 经纬线 -->
-                        <circle cx="200" cy="200" r="170" fill="none" stroke="#0056B3" stroke-width="1" opacity="0.3" />
-                        <ellipse cx="200" cy="200" rx="170" ry="85" fill="none" stroke="#0056B3" stroke-width="1" opacity="0.3" />
-                        <ellipse cx="200" cy="200" rx="85" ry="170" fill="none" stroke="#0056B3" stroke-width="1" opacity="0.3" />
-                        <line x1="30" y1="200" x2="370" y2="200" stroke="#0056B3" stroke-width="1" opacity="0.3" />
-                        <line x1="200" y1="30" x2="200" y2="370" stroke="#0056B3" stroke-width="1" opacity="0.3" />
-                    </svg>
-                    <p style="margin-top: 2rem; font-size: 1.2rem; color: var(--light-text);">服务全球客户，业务覆盖五大洲</p>
+                <div class="map-controls">
+                    <button class="map-btn"><i class="fas fa-edit"></i> 编辑布局</button>
+                    <button class="map-btn"><i class="fas fa-plus"></i> 添加区域</button>
+                </div>
+                <div class="map-placeholder" onclick="alert('交互式地图功能开发中...\n\n可支持功能：\n• 查看各区域业务状态\n• 编辑市场布局\n• 添加新市场\n• 查看销售数据\n• 实时更新业务信息')">
+                    <div style="text-align: center; position: relative; z-index: 1;">
+                        <i class="fas fa-globe-asia" style="font-size: 6rem; color: #0056b3;"></i>
+                        <p style="font-size: 1.8rem; font-weight: 600; background: linear-gradient(135deg, #0056b3, #17a2b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-top: 1.5rem;">交互式全球布局地图</p>
+                        <p style="color: #0056b3; margin-top: 0.8rem; font-size: 1.1rem;">点击查看或编辑</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -2482,106 +1711,14 @@
     </footer>
 
     <script>
-        // API配置 - 使用Vercel后端API（无需修改）
+        // API配置 - 使用Vercel后端API
         const API_CONFIG = {
-            baseURL: 'YOUR_AGENT_API_BASE_URL', // 例如：https://api.coze.cn/open_api/v2/bot
-            apiKey: 'YOUR_API_KEY', // 你的API密钥
-            botId: 'YOUR_BOT_ID' // 如果需要的话
+            baseURL: '/api',  // Vercel后端API路径
+            apiKey: '',       // 不需要在前端配置，已在Vercel环境变量中
+            botId: ''         // 不需要在前端配置
         };
 
-         // 文件上传相关
-        let uploadedFiles = [];
-
-        // 文件上传处理
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            files.forEach(file => {
-                // 保存原始File对象和base64预览
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const fileData = {
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        data: event.target.result,
-                        file: file, // 保存原始File对象
-                        isImage: file.type.startsWith('image/')
-                    };
-                    uploadedFiles.push(fileData);
-                    displayFilePreview(fileData, uploadedFiles.length - 1);
-                };
-                reader.readAsDataURL(file);
-            });
-            e.target.value = ''; // 清空输入，允许重复上传同一文件
-        });
-
-        // 显示文件预览
-        function displayFilePreview(fileData, index) {
-            const previewArea = document.getElementById('filePreviewArea');
-            previewArea.style.display = 'flex';
-
-            const isMobile = window.innerWidth <= 768;
-            const previewItem = document.createElement('div');
-            previewItem.className = 'file-preview-item' + (fileData.isImage && isMobile ? ' image-preview' : '');
-            previewItem.dataset.index = index;
-
-            if (fileData.isImage) {
-                if (isMobile) {
-                    // 手机端：图片显示缩略图
-                    previewItem.innerHTML = `
-                        <img src="${fileData.data}" alt="${fileData.name}">
-                        <div class="remove-file" onclick="removeFile(${index})">×</div>
-                    `;
-                } else {
-                    // 电脑端：图片显示文件名
-                    previewItem.innerHTML = `
-                        <div class="file-icon"><i class="fas fa-image"></i></div>
-                        <div class="file-name">${fileData.name}</div>
-                        <div class="remove-file" onclick="removeFile(${index})">×</div>
-                    `;
-                }
-            } else {
-                // 文件显示文件名
-                const icon = getFileIcon(fileData.name);
-                previewItem.innerHTML = `
-                    <div class="file-icon"><i class="fas fa-${icon}"></i></div>
-                    <div class="file-name">${fileData.name}</div>
-                    <div class="remove-file" onclick="removeFile(${index})">×</div>
-                `;
-            }
-
-            previewArea.appendChild(previewItem);
-        }
-
-        // 获取文件图标
-        function getFileIcon(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            const iconMap = {
-                'pdf': 'file-pdf',
-                'doc': 'file-word',
-                'docx': 'file-word',
-                'txt': 'file-alt',
-                'xls': 'file-excel',
-                'xlsx': 'file-excel'
-            };
-            return iconMap[ext] || 'file';
-        }
-
-        // 删除文件
-        function removeFile(index) {
-            uploadedFiles[index] = null; // 标记为已删除
-            const previewArea = document.getElementById('filePreviewArea');
-            const item = previewArea.querySelector(`[data-index="${index}"]`);
-            if (item) {
-                item.remove();
-            }
-            // 如果没有文件了，隐藏预览区域
-            if (previewArea.children.length === 0) {
-                previewArea.style.display = 'none';
-            }
-        }
-
-        // 快捷功能映射
+        // 快捷功能映射表
         const ACTION_MAPPING = {
             'calculate_quote': '请帮我计算FOB报价，我需要输入哪些参数？',
             'generate_contract': '请帮我生成一份出口合同，我需要什么信息？',
@@ -2689,247 +1826,66 @@
             const chatMessages = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type}`;
-            
-            // 如果是AI回复，使用Markdown渲染
-            let content;
-            if (type === 'assistant') {
-                // 配置marked库
-                marked.setOptions({
-                    breaks: true,
-                    gfm: true,
-                    highlight: function(code, lang) {
-                        if (lang && hljs.getLanguage(lang)) {
-                            return hljs.highlight(code, { language: lang }).value;
-                        }
-                        return hljs.highlightAuto(code).value;
-                    }
-                });
-                
-                content = marked.parse(text);
-                
-                messageDiv.innerHTML = `
-                    <button class="copy-btn" onclick="copyMessage(this)">
-                        <i class="fas fa-copy"></i> 复制
-                    </button>
-                    <div class="message-content">${content}</div>
-                    <button class="download-btn" onclick="downloadMessage(this)">
-                        <i class="fas fa-download"></i> 下载
-                    </button>
-                    <div class="message-time">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'})}</div>
-                `;
-            } else {
-                messageDiv.innerHTML = `
-                    <p>${text}</p>
-                    <div class="message-time">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'})}</div>
-                `;
-            }
-            
+            messageDiv.innerHTML = `
+                <p>${text}</p>
+                <div class="message-time">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'})}</div>
+            `;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // 高亮代码块
-            if (type === 'assistant') {
-                messageDiv.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightElement(block);
-                });
-            }
         }
 
-        // Coze API配置
-        const COZE_CONFIG = {
-            baseURL: 'https://api.coze.cn/open_api/v2/chat',
-            uploadURL: 'https://api.coze.cn/v1/files/upload',
-            apiKey: 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImEzYzBiMjdjLWI4YjMtNGIxMy1hNWU1LTExMTE3MzBjYjkwMCJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbIjRZNjB4SjY5V050V2ZGWHk1cFBYZ2hRM2R4eUhGeHQ3Il0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzY3ODEyNTEwLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NTkwNDAzMzg5Nzc5ODY5NzM3Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NTkyNjk2OTE3ODgwOTk1OTAzIn0.UBwOie3rbhMe3OESRZx1JSrCk1RA5ZjG1wOvw84xVLs_CgENlzkVpPn18cFu_SH0wKt1k1qzcS5IBVGoBYMiyhBSKaoqr2iWUXbTaO-0T3K3HhvzIPNTfxWZTHJZfovUTwC3Xl9kHvEyHYqbuaPqp2YU8i8de6PEZN6AP8DHlYFn6PBXZUgxHtmKyEpfHhpTLz2-qop19z8hf3nfMHyhgiDPPKwn6kzWz3TIGxFMamLV6pThkIp24eu515O5ep20MdMS_mVbsqUGtPAhjTkmvdOcg1r-R3_08EusXv80es9I4-diyfGnGUZvVcmJM7Epo0jn0QYR3fix76Jr7xHbmQ',
-            botId: '4Y60xJ69WNtWfFXy5pXghQ3dxyHFxt7'
-        };
-
-        // 上传文件到Coze云端
-        async function uploadFileToCoze(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('purpose', 'assistants_output');
-
-            const response = await fetch(COZE_CONFIG.uploadURL, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${COZE_CONFIG.apiKey}`
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`文件上传失败: ${response.status}`);
-            }
-
-            const result = await response.json();
-            return result.data?.id || result.data?.url || result.url;
-        }
-
-        // 发送消息到Coze智能体
-        async function sendMessageToCoze(message, fileId = null) {
-            let fullMessage = message;
-
-            // 如果有文件ID，添加到消息中
-            if (fileId) {
-                fullMessage += `\n\n[文件ID: ${fileId}]`;
-            }
-
-            const response = await fetch(COZE_CONFIG.baseURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${COZE_CONFIG.apiKey}`
-                },
-                body: JSON.stringify({
-                    bot_id: COZE_CONFIG.botId,
-                    query: fullMessage,
-                    user: 'web_user_' + Date.now(),
-                    conversation_id: localStorage.getItem('coze_conversation_id') || null,
-                    stream: false
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`API调用失败: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            // 保存conversation_id
-            if (data.data && data.data.conversation_id) {
-                localStorage.setItem('coze_conversation_id', data.data.conversation_id);
-            }
-
-            return data.data;
-        }
-
-        // 发送消息到智能体（使用Coze云端API）
-        async function sendMessageToAgent(message, onChunk, files = []) {
+        // 发送消息到智能体（通过Vercel后端）
+        async function sendMessageToAgent(message) {
             try {
-                let fileId = null;
-                
-                // 如果有文件，先上传到Coze
-                if (files.length > 0 && files[0].file) {
-                    try {
-                        fileId = await uploadFileToCoze(files[0].file);
-                        console.log('文件上传成功，ID:', fileId);
-                    } catch (error) {
-                        console.error('文件上传失败:', error);
-                        throw new Error('文件上传失败，请重试');
-                    }
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
-                // 发送消息到Coze
-                const data = await sendMessageToCoze(message, fileId);
-                
-                // 提取回复内容
-                let reply = '抱歉，未收到有效回复。';
-                
-                if (data && data.status === 'completed') {
-                    reply = data.answer || data.content || reply;
-                } else if (data && data.answer) {
-                    reply = data.answer;
-                } else if (data && data.content) {
-                    reply = data.content;
-                }
-                
-                // 如果有onChunk回调，调用它
-                if (onChunk) {
-                    onChunk(reply);
-                }
-                
-                return reply;
+
+                const data = await response.json();
+                return data.reply || data.message || '抱歉，我无法理解您的请求。';
             } catch (error) {
-                console.error('Error calling Coze API:', error);
+                console.error('Error calling API:', error);
                 throw error;
             }
-        }
-
-        // 获取模拟回复（仅用于演示，实际使用时请确保API正常工作）
-        function getMockResponse(message) {
-            return `我收到了您的请求："${message}"\n\n这是一个演示回复。要使用实际的智能体功能，请：\n\n1. 在代码中配置正确的 API_CONFIG 参数\n2. 确保智能体API可以正常访问\n3. 根据你的API文档调整 sendMessageToAgent 函数\n\n配置完成后，所有快捷功能都会正常工作，提供专业的出口业务支持！`;
+        }"\n\n这是一个演示回复。要使用实际的智能体功能，请：\n\n1. 在代码中配置正确的 API_CONFIG 参数\n2. 确保智能体API可以正常访问\n3. 根据你的API文档调整 sendMessageToAgent 函数\n\n配置完成后，所有快捷功能都会正常工作，提供专业的出口业务支持！`;
         }
 
         // 发送消息
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
-            const hasFiles = uploadedFiles.some(f => f !== null);
 
-            if (message || hasFiles) {
-                // 获取有效文件
-                const validFiles = uploadedFiles.filter(f => f !== null);
-                
+            if (message) {
                 // 添加用户消息
-                let displayMessage = message;
-                if (validFiles.length > 0) {
-                    displayMessage += ` 【附件: ${validFiles.map(f => f.name).join(', ')}】`;
-                }
-                addMessage(displayMessage || '【已上传文件】', 'user');
+                addMessage(message, 'user');
                 input.value = '';
-                
-                // 清空文件列表和预览
-                uploadedFiles = [];
-                const previewArea = document.getElementById('filePreviewArea');
-                previewArea.innerHTML = '';
-                previewArea.style.display = 'none';
 
                 // 显示"正在思考"状态
                 const thinkingId = addThinkingMessage();
-                
-                // 显示控制按钮
-                showControlButtons();
-                shouldStop = false;
-                
-                let assistantMessageAdded = false;
-                let lastMessageElement = null;
 
                 try {
-                    // 调用智能体API，带流式回调
-                    const reply = await sendMessageToAgent(message, (partialText) => {
-                        if (shouldStop) return;
-                        
-                        // 移除“正在思考”消息（只移除一次）
-                        if (!assistantMessageAdded) {
-                            removeThinkingMessage(thinkingId);
-                            assistantMessageAdded = true;
-                        }
-                        
-                        // 更新或添加消息
-                        if (!lastMessageElement) {
-                            addMessage(partialText, 'assistant');
-                            const chatMessages = document.getElementById('chatMessages');
-                            lastMessageElement = chatMessages.lastElementChild;
-                        } else {
-                            // 更新现有消息（使用Markdown渲染）
-                            const content = marked.parse(partialText);
-                            const contentDiv = lastMessageElement.querySelector('.message-content');
-                            if (contentDiv) {
-                                contentDiv.innerHTML = content;
-                                // 重新高亮代码
-                                lastMessageElement.querySelectorAll('pre code').forEach((block) => {
-                                    hljs.highlightElement(block);
-                                });
-                            }
-                        }
-                    }, validFiles);
+                    // 调用智能体API
+                    const reply = await sendMessageToAgent(message);
 
-                    // 确保移除"正在思考"消息
-                    if (!assistantMessageAdded) {
-                        removeThinkingMessage(thinkingId);
-                    }
+                    // 移除"正在思考"消息
+                    removeThinkingMessage(thinkingId);
 
-                    // 如果没有通过流式回调添加消息，则添加最终消息
-                    if (!lastMessageElement && reply && !shouldStop) {
-                        addMessage(reply, 'assistant');
-                    }
+                    // 添加AI回复
+                    addMessage(reply, 'assistant');
                 } catch (error) {
                     removeThinkingMessage(thinkingId);
                     addMessage('抱歉，服务暂时无法使用，请稍后再试。', 'assistant');
                     console.error('Error:', error);
-                } finally {
-                    // 隐藏控制按钮
-                    hideControlButtons();
                 }
             }
         }
@@ -2944,60 +1900,20 @@
 
                 // 显示"正在思考"状态
                 const thinkingId = addThinkingMessage();
-                
-                // 显示控制按钮
-                showControlButtons();
-                shouldStop = false;
-                
-                let assistantMessageAdded = false;
-                let lastMessageElement = null;
 
                 try {
-                    // 调用智能体API，带流式回调
-                    const reply = await sendMessageToAgent(prompt, (partialText) => {
-                        if (shouldStop) return;
-                        
-                        // 移除"正在思考"消息（只移除一次）
-                        if (!assistantMessageAdded) {
-                            removeThinkingMessage(thinkingId);
-                            assistantMessageAdded = true;
-                        }
-                        
-                        // 更新或添加消息
-                        if (!lastMessageElement) {
-                            addMessage(partialText, 'assistant');
-                            const chatMessages = document.getElementById('chatMessages');
-                            lastMessageElement = chatMessages.lastElementChild;
-                        } else {
-                            // 更新现有消息（使用Markdown渲染）
-                            const content = marked.parse(partialText);
-                            const contentDiv = lastMessageElement.querySelector('.message-content');
-                            if (contentDiv) {
-                                contentDiv.innerHTML = content;
-                                // 重新高亮代码
-                                lastMessageElement.querySelectorAll('pre code').forEach((block) => {
-                                    hljs.highlightElement(block);
-                                });
-                            }
-                        }
-                    });
+                    // 调用智能体API
+                    const reply = await sendMessageToAgent(prompt);
 
-                    // 确保移除"正在思考"消息
-                    if (!assistantMessageAdded) {
-                        removeThinkingMessage(thinkingId);
-                    }
+                    // 移除"正在思考"消息
+                    removeThinkingMessage(thinkingId);
 
-                    // 如果没有通过流式回调添加消息，则添加最终消息
-                    if (!lastMessageElement && reply && !shouldStop) {
-                        addMessage(reply, 'assistant');
-                    }
+                    // 添加AI回复
+                    addMessage(reply, 'assistant');
                 } catch (error) {
                     removeThinkingMessage(thinkingId);
                     addMessage('抱歉，服务暂时无法使用，请稍后再试。', 'assistant');
                     console.error('Error:', error);
-                } finally {
-                    // 隐藏控制按钮
-                    hideControlButtons();
                 }
             }
         }
@@ -3009,150 +1925,10 @@
             }
         });
 
-        // 复制消息
-        function copyMessage(button) {
-            const messageDiv = button.closest('.message');
-            const content = messageDiv.querySelector('.message-content');
-            const text = content.innerText;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                const icon = button.querySelector('i');
-                const originalHTML = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check"></i> 已复制';
-                button.classList.add('copied');
-                
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                    button.classList.remove('copied');
-                }, 2000);
-            });
-        }
-
-        // 下载消息
-        function downloadMessage(button) {
-            const messageDiv = button.closest('.message');
-            const content = messageDiv.querySelector('.message-content');
-            const text = content.innerText;
-            
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `AI回复_${new Date().toISOString().slice(0,10)}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // 暂停/继续控制
-        let isPaused = false;
-        let currentReader = null;
-        let currentAbortController = null;
-
-        function togglePause() {
-            isPaused = !isPaused;
-            const pauseBtn = document.getElementById('pauseBtn');
-            
-            if (isPaused) {
-                pauseBtn.innerHTML = '<i class="fas fa-play"></i> 继续';
-            } else {
-                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
-            }
-        }
-
-        // 停止生成
-        let shouldStop = false;
-
-        function stopGeneration() {
-            shouldStop = true;
-            if (currentAbortController) {
-                currentAbortController.abort();
-                currentAbortController = null;
-            }
-            if (currentReader) {
-                currentReader.cancel();
-                currentReader = null;
-            }
-            hideControlButtons();
-        }
-
-        // 显示控制按钮
-        function showControlButtons() {
-            document.getElementById('pauseBtn').style.display = 'flex';
-            document.getElementById('stopBtn').style.display = 'flex';
-            document.getElementById('sendBtn').disabled = true;
-        }
-
-        // 隐藏控制按钮
-        function hideControlButtons() {
-            document.getElementById('pauseBtn').style.display = 'none';
-            document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('sendBtn').disabled = false;
-            isPaused = false;
-            shouldStop = false;
-        }
-
-        // 文件上传处理
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const fileName = file.name;
-                    const fileType = file.type;
-                    
-                    // 添加文件信息到聊天
-                    addMessage(`已上传文件：${fileName}`, 'user');
-                    
-                    // 如果是图片，可以显示预览
-                    if (fileType.startsWith('image/')) {
-                        const chatMessages = document.getElementById('chatMessages');
-                        const imgDiv = document.createElement('div');
-                        imgDiv.className = 'message user';
-                        imgDiv.innerHTML = `
-                            <img src="${event.target.result}" style="max-width: 300px; border-radius: 10px;" />
-                            <div class="message-time">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'})}</div>
-                        `;
-                        chatMessages.appendChild(imgDiv);
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                };
-                
-                if (file.type.startsWith('image/')) {
-                    reader.readAsDataURL(file);
-                } else {
-                    reader.readAsText(file);
-                }
-            }
-            
-            // 清空文件输入
-            e.target.value = '';
-        });
-
         // 页面加载时的提示
         window.addEventListener('load', function() {
             console.log('富铖新材料智能出口助手已加载');
-            console.log('功能：Markdown渲染 + 复制/下载 + 暂停/停止 + 文件上传 + 响应式设计');
-        });
-        // 汉堡菜单功能
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileNavMenu');
-            menu.classList.toggle('active');
-        }
-
-        function closeMobileMenu() {
-            const menu = document.getElementById('mobileNavMenu');
-            menu.classList.remove('active');
-        }
-
-        // 点击页面其他地方关闭菜单
-        document.addEventListener('click', function(event) {
-            const menu = document.getElementById('mobileNavMenu');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
-            if (menu && menuBtn && !menu.contains(event.target) && !menuBtn.contains(event.target)) {
-                menu.classList.remove('active');
-            }
+            console.log('要启用完整功能，请在代码中配置 API_CONFIG 参数');
         });
     </script>
 </body>
