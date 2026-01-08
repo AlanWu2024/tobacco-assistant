@@ -569,6 +569,18 @@
             box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
         }
 
+        /* 停止按钮的hover效果 */
+        .chat-input #sendBtn.stop-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333) !important;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .chat-input #sendBtn.stop-btn:hover {
+            background: linear-gradient(135deg, #c82333, #bd2130) !important;
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+            transform: translateY(-2px);
+        }
+
 
         /* 控制按钮区域 */
         .control-buttons {
@@ -3218,16 +3230,36 @@
 
         // 显示控制按钮
         function showControlButtons() {
-            document.getElementById('pauseBtn').style.display = 'flex';
-            document.getElementById('stopBtn').style.display = 'flex';
-            document.getElementById('sendBtn').disabled = true;
+            // 隐藏暂停和停止按钮
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'none';
+
+            // 将发送按钮改为停止按钮
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.innerHTML = '<i class="fas fa-stop"></i><span class="btn-text"> 停止</span>';
+            sendBtn.setAttribute('onclick', 'stopGeneration()');
+            sendBtn.classList.add('stop-btn');  // 添加停止按钮样式
+            // 直接设置红色背景，确保能够正确显示
+            sendBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
+            sendBtn.style.boxShadow = '0 4px 15px rgba(220, 53, 69, 0.3)';
         }
 
         // 隐藏控制按钮
         function hideControlButtons() {
+            // 隐藏暂停和停止按钮
             document.getElementById('pauseBtn').style.display = 'none';
             document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('sendBtn').disabled = false;
+
+            // 将停止按钮恢复为发送按钮
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.innerHTML = '<i class="fas fa-arrow-up"></i><span class="btn-text"> 发送</span>';
+            sendBtn.setAttribute('onclick', 'sendMessage()');
+            sendBtn.classList.remove('stop-btn');  // 移除停止按钮样式
+            // 恢复蓝色背景
+            sendBtn.style.background = 'linear-gradient(135deg, var(--primary-color), var(--primary-light))';
+            sendBtn.style.boxShadow = '0 4px 15px rgba(0, 86, 179, 0.3)';
+            sendBtn.disabled = false;
+
             isPaused = false;
             shouldStop = false;
         }
