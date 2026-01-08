@@ -512,16 +512,24 @@
         }
 
         .chat-input {
-            padding: 1.5rem 2rem;
+            padding: 1.5rem 2rem !important;
             border-top: 1px solid #e8e8e8;
-            display: flex;
-            gap: 1rem;
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 1rem !important;
+            align-items: center !important;
             background: white;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            min-width: 0 !important;
+            width: 100% !important;
         }
 
-        .chat-input input {
-            flex: 1;
+        .chat-input input[type="text"] {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            width: 0 !important;  /* 改为0，让flex-grow完全控制 */
+            max-width: none !important;
             padding: 1rem 1.5rem;
             border: 2px solid #e8e8e8;
             border-radius: 25px;
@@ -537,23 +545,26 @@
             background: white;
         }
 
-        .chat-input button {
+        .chat-input #sendBtn {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             color: white;
             border: none;
-            padding: 1rem 2.5rem;
+            padding: 1rem 2.5rem !important;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s;
-            display: flex;
+            display: flex !important;
             align-items: center;
             gap: 0.5rem;
             box-shadow: 0 4px 15px rgba(0, 86, 179, 0.3);
+            flex: 0 0 auto !important;
+            flex-shrink: 0 !important;
+            width: auto !important;
         }
 
-        .chat-input button:hover {
+        .chat-input #sendBtn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
         }
@@ -561,9 +572,11 @@
 
         /* 控制按钮区域 */
         .control-buttons {
-            display: flex;
+            display: none !important;
             gap: 0.5rem;
             align-items: center;
+            flex: 0 0 auto !important;
+            visibility: hidden !important;
         }
 
         .control-btn {
@@ -604,15 +617,18 @@
         .file-upload-btn {
             background: rgba(32, 201, 151, 0.1);
             border: none;
-            padding: 0.8rem 1.2rem;
+            padding: 0.8rem 1.2rem !important;
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.9rem;
             color: var(--accent-color);
             transition: all 0.3s;
-            display: flex;
+            display: flex !important;
             align-items: center;
             gap: 0.5rem;
+            flex: 0 0 auto !important;
+            flex-shrink: 0 !important;
+            width: auto !important;
         }
 
         .file-upload-btn:hover {
@@ -726,7 +742,7 @@
             color: white;
         }
 
-        .chat-input button:active {
+        .chat-input #sendBtn:active {
             transform: translateY(0);
         }
 
@@ -1462,6 +1478,43 @@
             opacity: 0.9;
         }
 
+        /* PC端样式 (>= 1201px) - 确保PC端布局正确 */
+        @media (min-width: 1201px) {
+            .chat-input {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                gap: 1rem !important;
+                align-items: center !important;
+                padding: 1.5rem 2rem !important;
+            }
+
+            .chat-input input[type="text"] {
+                flex: 1 1 auto !important;
+                min-width: 0 !important;
+                width: 0 !important;
+            }
+
+            .chat-input .file-upload-btn {
+                flex: 0 0 auto !important;
+                flex-shrink: 0 !important;
+                width: auto !important;
+                display: flex !important;
+            }
+
+            .chat-input #sendBtn {
+                flex: 0 0 auto !important;
+                flex-shrink: 0 !important;
+                width: auto !important;
+                display: flex !important;
+            }
+
+            .chat-input .control-buttons {
+                display: none !important;
+                visibility: hidden !important;
+            }
+        }
+
         /* 响应式设计 */
         @media (max-width: 1400px) {
             .assistant-container {
@@ -1754,35 +1807,32 @@
             .chat-input {
                 padding: 0.8rem;
                 display: flex;
-                flex-wrap: wrap;
-                gap: 0.8rem;
+                flex-wrap: nowrap;
+                gap: 0.6rem;
                 align-items: center;
             }
 
             .chat-input input[type="text"] {
-                flex: 1 1 100%;
-                width: 100%;
+                flex: 1;
+                min-width: 0;
                 padding: 0.8rem 1rem;
                 font-size: 0.9rem;
-                order: 1;
             }
 
             .file-upload-btn {
-                width: 48px;
-                height: 48px;
-                min-width: 48px;
-                min-height: 48px;
-                max-width: 48px;
-                max-height: 48px;
+                width: 44px;
+                height: 44px;
+                min-width: 44px;
+                min-height: 44px;
+                max-width: 44px;
+                max-height: 44px;
                 padding: 0;
                 border-radius: 50%;
-                font-size: 1.3rem;
-                order: 2;
+                font-size: 1.2rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
-                margin-right: auto;
             }
 
             .file-upload-btn i {
@@ -1790,21 +1840,19 @@
             }
 
             .chat-input #sendBtn {
-                width: 48px;
-                height: 48px;
-                min-width: 48px;
-                min-height: 48px;
-                max-width: 48px;
-                max-height: 48px;
+                width: 44px;
+                height: 44px;
+                min-width: 44px;
+                min-height: 44px;
+                max-width: 44px;
+                max-height: 44px;
                 padding: 0;
                 border-radius: 50%;
-                font-size: 1.3rem;
-                order: 3;
+                font-size: 1.2rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
-                margin-left: auto;
             }
 
             .chat-input #sendBtn i {
@@ -1847,8 +1895,7 @@
             }
 
             .control-buttons {
-                flex: 1;
-                justify-content: flex-start;
+                display: none;
             }
 
             /* 快捷功能区域 */
