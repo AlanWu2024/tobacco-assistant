@@ -524,6 +524,7 @@
 
         .chat-input input {
             flex: 1;
+            min-width: 0;
             padding: 1rem 1.5rem;
             border: 2px solid #e8e8e8;
             border-radius: 25px;
@@ -539,7 +540,7 @@
             background: white;
         }
 
-        .chat-input button {
+        .chat-input #sendBtn {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             color: white;
             border: none;
@@ -553,9 +554,11 @@
             align-items: center;
             gap: 0.5rem;
             box-shadow: 0 4px 15px rgba(0, 86, 179, 0.3);
+            flex: 0 0 auto;
+            flex-shrink: 0;
         }
 
-        .chat-input button:hover {
+        .chat-input #sendBtn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
         }
@@ -563,9 +566,10 @@
 
         /* 控制按钮区域 */
         .control-buttons {
-            display: flex;
+            display: none;
             gap: 0.5rem;
             align-items: center;
+            flex: 0 0 auto;
         }
 
         .control-btn {
@@ -615,6 +619,8 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            flex: 0 0 auto;
+            flex-shrink: 0;
         }
 
         .file-upload-btn:hover {
@@ -728,7 +734,7 @@
             color: white;
         }
 
-        .chat-input button:active {
+        .chat-input #sendBtn:active {
             transform: translateY(0);
         }
 
