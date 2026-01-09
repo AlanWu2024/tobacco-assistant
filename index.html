@@ -2912,11 +2912,19 @@
         // 发送消息到智能体（通过Vercel后端）
         async function sendMessageToAgent(message, onChunk, files = []) {
             // ===== 实时工具集快速响应 =====
+            console.log('=== 实时工具检查 ===');
+            console.log('window.TimeHelper:', window.TimeHelper);
+            console.log('window.RealTimeTools:', window.RealTimeTools);
+
             if (window.RealTimeTools) {
+                console.log('正在调用实时工具处理查询...');
                 const handled = await window.RealTimeTools.handleRealTimeQuery(message, onChunk);
+                console.log('实时工具处理结果:', handled);
                 if (handled) {
                     return; // 如果实时工具已处理，则不再发送到后端
                 }
+            } else {
+                console.warn('实时工具未加载，请求将发送到后端API');
             }
             // ===== 实时工具集快速响应结束 =====
 
