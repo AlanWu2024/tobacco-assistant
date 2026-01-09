@@ -15,229 +15,7 @@
     <!-- xlsx 用于解析 Excel 文件 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- 注意：时间和天气功能已直接集成到 sendMessageToAgent 函数中，无需外部JS文件 -->
-            /**
-             * 判断是否为时间查询
-             */
-            function isTimeQuery(message) {
-                const timeKeywords = [
-                    '时间', '几点', '几点了', '现在', '当前时间', 'date', 'time',
-                    '今天', '明天', '昨天', '星期', '周几', '月份', '年月日',
-                    '几点钟', '什么时候', '现在几点', '现在什么时候', '几号', '日期'
-                ];
-                const lowerMessage = message.toLowerCase();
-                return timeKeywords.some(keyword => lowerMessage.includes(keyword));
-            }
-
-            /**
-             * 获取时间响应
-             */
-            function getTimeResponse(message) {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = now.getMonth() + 1;
-                const day = now.getDate();
-                const hours = now.getHours();
-                const minutes = now.getMinutes();
-                const seconds = now.getSeconds();
-
-                const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-                const weekday = weekdays[now.getDay()];
-
-                // 检查是否需要英文格式
-                if (/^(date|time|what time|current time|what is the time)/i.test(message.toLowerCase())) {
-                    return getEnglishTimeResponse(now, weekday);
-                }
-
-                let response = `### 当前日期信息
-
-#### 中国标准时间（UTC+8）
-📅 **日期**：${year}年${month}月${day}日（${weekday}）
-⏰ **时间**：${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}
-
-#### 东南亚主要城市日期
-| **城市** | **日期** | **工作日状态** |
-|----------|----------|---------------|
-| 雅加达 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
-| 新加坡 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
-| 曼谷 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
-| 胡志明市 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
-| 马尼拉 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |`;
-
-                // 根据关键词提供更多信息
-                if (message.includes('今天')) {
-                    response += `\n\n📅 今天是 ${year}年${month}月${day}日，${weekday}`;
-                } else if (message.includes('明天')) {
-                    const tomorrow = new Date(now);
-                    tomorrow.setDate(now.getDate() + 1);
-                    const tMonth = tomorrow.getMonth() + 1;
-                    const tDay = tomorrow.getDate();
-                    const tWeekday = weekdays[tomorrow.getDay()];
-                    response += `\n\n📅 明天是 ${year}年${tMonth}月${tDay}日，${tWeekday}`;
-                } else if (message.includes('昨天')) {
-                    const yesterday = new Date(now);
-                    yesterday.setDate(now.getDate() - 1);
-                    const yMonth = yesterday.getMonth() + 1;
-                    const yDay = yesterday.getDate();
-                    const yWeekday = weekdays[yesterday.getDay()];
-                    response += `\n\n📅 昨天是 ${year}年${yMonth}月${yDay}日，${yWeekday}`;
-                }
-
-                return response;
-            }
-
-            /**
-             * 获取英文时间响应
-             */
-            function getEnglishTimeResponse(date, weekday) {
-                const hours = date.getHours();
-                const minutes = date.getMinutes();
-                const seconds = date.getSeconds();
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                const displayHours = hours % 12 || 12;
-
-                const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                               'July', 'August', 'September', 'October', 'November', 'December'];
-
-                return `Current time: ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} (${weekdays[date.getDay()]}) ${displayHours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
-            }
-
-            return {
-                isTimeQuery,
-                getTimeResponse
-            };
-        })();
-
-        /**
-         * 实时工具集 - 内嵌版本
-         */
-        window.RealTimeTools = (function() {
-            /**
-             * 判断消息类型
-             */
-            function detectQueryType(message) {
-                const lowerMessage = message.toLowerCase();
-
-                // 时间查询
-                if (window.TimeHelper && window.TimeHelper.isTimeQuery(message)) {
-                    return 'time';
-                }
-
-                // 天气查询
-                if (/天气|weather|气温|温度|下雨|晴天|阴天|多云|下雪|台风/i.test(message)) {
-                    return 'weather';
-                }
-
-                return 'none';
-            }
-
-            /**
-             * 处理实时查询
-             */
-            async function handleRealTimeQuery(message, onChunk) {
-                const queryType = detectQueryType(message);
-
-                switch (queryType) {
-                    case 'time':
-                        await handleTimeQuery(message, onChunk);
-                        return true;
-                    case 'weather':
-                        await handleWeatherQuery(message, onChunk);
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            /**
-             * 处理时间查询
-             */
-            async function handleTimeQuery(message, onChunk) {
-                const timeResponse = window.TimeHelper.getTimeResponse(message);
-                await streamResponse(timeResponse, onChunk);
-            }
-
-            /**
-             * 处理天气查询
-             */
-            async function handleWeatherQuery(message, onChunk) {
-                try {
-                    // 提取城市名称
-                    let city = 'Beijing';
-                    const cityMatch = message.match(/(.+?)(天气|weather)/i);
-                    if (cityMatch) {
-                        city = cityMatch[1].trim();
-                        // 简单的城市映射
-                        const cityMap = {
-                            '北京': 'Beijing',
-                            '上海': 'Shanghai',
-                            '广州': 'Guangzhou',
-                            '深圳': 'Shenzhen',
-                            '杭州': 'Hangzhou',
-                            '成都': 'Chengdu',
-                            '重庆': 'Chongqing',
-                            '武汉': 'Wuhan',
-                            '南京': 'Nanjing',
-                            '天津': 'Tianjin',
-                            'New York': 'New_York',
-                            'London': 'London',
-                            'Tokyo': 'Tokyo',
-                            'Paris': 'Paris',
-                            '雅加达': 'Jakarta',
-                            '新加坡': 'Singapore',
-                            '曼谷': 'Bangkok',
-                            '胡志明市': 'Ho_Chi_Minh_City',
-                            '马尼拉': 'Manila'
-                        };
-                        if (cityMap[city]) {
-                            city = cityMap[city];
-                        }
-                    }
-
-                    // 调用 wttr.in API
-                    const weatherUrl = `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`;
-                    const response = await fetch(weatherUrl);
-                    const data = await response.json();
-
-                    // 解析天气数据
-                    const current = data.current_condition[0];
-                    const forecast = data.weather[0];
-
-                    const weatherText = `### ${city} 实时天气报告
-
-#### 当前天气
-- **状况**：${current.lang_zh[0].value || current.weatherDesc[0].value}
-- **温度**：${current.temp_C}°C（体感 ${current.FeelsLikeC}°C）
-- **湿度**：${current.humidity}%
-- **风速**：${current.windspeedKmph} km/h
-
-#### 明日预报
-- **温度**：${forecast.mintempC}°C - ${forecast.maxtempC}°C
-- **天气**：${forecast.hourly[4].lang_zh[0].value || forecast.hourly[4].weatherDesc[0].value}`;
-
-                    await streamResponse(weatherText, onChunk);
-                } catch (error) {
-                    await streamResponse(`抱歉，无法获取天气信息。错误：${error.message}\n\n请稍后再试，或尝试使用联网搜索功能。`, onChunk);
-                }
-            }
-
-            /**
-             * 流式输出响应
-             */
-            async function streamResponse(text, onChunk) {
-                const chunks = text.split('');
-                for (let i = 0; i < chunks.length; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 5));
-                    onChunk({ type: 'content', content: chunks.slice(0, i + 1).join('') });
-                }
-            }
-
-            return {
-                detectQueryType,
-                handleRealTimeQuery
-            };
-
-
+    <style>
         /* 主内容区域 */
         .main-content {
             margin-top: 80px;
@@ -3466,12 +3244,12 @@
 
                     console.log('时间响应:', timeResponse);
 
-                    // 模拟流式输出
+                    // 模拟流式输出（直接传递字符串）
                     if (timeResponse && onChunk) {
                         const chunks = timeResponse.split('');
                         for (let i = 0; i < chunks.length; i++) {
                             await new Promise(resolve => setTimeout(resolve, 5));
-                            onChunk({ type: 'content', content: chunks.slice(0, i + 1).join('') });
+                            onChunk(chunks.slice(0, i + 1).join(''));
                         }
                     }
                     handledByRealTimeTools = true;
@@ -3539,12 +3317,12 @@
 
                         console.log('天气文本:', weatherText);
 
-                        // 模拟流式输出
+                        // 模拟流式输出（直接传递字符串）
                         if (weatherText && onChunk) {
                             const chunks = weatherText.split('');
                             for (let i = 0; i < chunks.length; i++) {
                                 await new Promise(resolve => setTimeout(resolve, 5));
-                                onChunk({ type: 'content', content: chunks.slice(0, i + 1).join('') });
+                                onChunk(chunks.slice(0, i + 1).join(''));
                             }
                         }
                         handledByRealTimeTools = true;
