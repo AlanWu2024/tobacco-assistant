@@ -14,6 +14,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <!-- xlsx 用于解析 Excel 文件 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- 时间查询辅助工具 -->
+    <script src="/time-helper.js"></script>
+    <!-- 实时工具集 -->
+    <script src="/real-time-tools.js"></script>
     <style>
         * {
             margin: 0;
@@ -2907,6 +2911,15 @@
 
         // 发送消息到智能体（通过Vercel后端）
         async function sendMessageToAgent(message, onChunk, files = []) {
+            // ===== 实时工具集快速响应 =====
+            if (window.RealTimeTools) {
+                const handled = await window.RealTimeTools.handleRealTimeQuery(message, onChunk);
+                if (handled) {
+                    return; // 如果实时工具已处理，则不再发送到后端
+                }
+            }
+            // ===== 实时工具集快速响应结束 =====
+
             try {
                 // 创建AbortController
                 currentAbortController = new AbortController();
