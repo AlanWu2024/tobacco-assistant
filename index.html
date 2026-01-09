@@ -14,13 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <!-- xlsx 用于解析 Excel 文件 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- 时间查询辅助工具 -->
-    <script>
-        /**
-         * 时间查询辅助工具
-         * 支持多种时间格式的识别和查询
-         */
-        window.TimeHelper = (function() {
+    <!-- 注意：时间和天气功能已直接集成到 sendMessageToAgent 函数中，无需外部JS文件 -->
             /**
              * 判断是否为时间查询
              */
@@ -242,151 +236,7 @@
                 detectQueryType,
                 handleRealTimeQuery
             };
-        })();
-    </script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        :root {
-            --primary-color: #0056b3;
-            --primary-dark: #004494;
-            --primary-light: #007bff;
-            --secondary-color: #17a2b8;
-            --accent-color: #20c997;
-            --bg-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --bg-gradient-2: linear-gradient(135deg, #0056b3 0%, #004494 100%);
-            --bg-gradient-3: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #0056b3 100%);
-            --text-color: #333;
-            --light-text: #666;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
-            --shadow-glow: 0 0 30px rgba(0, 86, 179, 0.3);
-        }
-
-        html {
-            scroll-behavior: smooth;
-            scroll-padding-top: 80px;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background: linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%);
-            overflow-x: hidden;
-        }
-
-        /* 导航栏 */
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            color: #333;
-            padding: 0.8rem 2rem;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .navbar.scrolled {
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .navbar-container {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo img {
-            height: 45px;
-            width: auto;
-            transition: transform 0.3s ease;
-        }
-
-        .logo img:hover {
-            transform: scale(1.05);
-        }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo-text h1 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #0056b3, #17a2b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: 1px;
-        }
-
-        .logo-text p {
-            font-size: 0.7rem;
-            color: var(--light-text);
-            margin-top: 2px;
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 0.5rem;
-        }
-
-        .nav-menu a {
-            color: #333;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-menu a::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            transition: width 0.3s ease;
-        }
-
-        .nav-menu a:hover::before,
-        .nav-menu a.active::before {
-            width: 80%;
-        }
-
-        .nav-menu a:hover,
-        .nav-menu a.active {
-            background: linear-gradient(135deg, rgba(0, 86, 179, 0.1), rgba(23, 162, 184, 0.1));
-            color: var(--primary-color);
-        }
 
         /* 主内容区域 */
         .main-content {
@@ -3552,18 +3402,169 @@
         async function sendMessageToAgent(message, onChunk, files = []) {
             // ===== 实时工具集快速响应 =====
             console.log('=== 实时工具检查 ===');
-            console.log('window.TimeHelper:', window.TimeHelper);
-            console.log('window.RealTimeTools:', window.RealTimeTools);
+            console.log('检测消息:', message);
 
-            if (window.RealTimeTools) {
-                console.log('正在调用实时工具处理查询...');
-                const handled = await window.RealTimeTools.handleRealTimeQuery(message, onChunk);
-                console.log('实时工具处理结果:', handled);
-                if (handled) {
-                    return; // 如果实时工具已处理，则不再发送到后端
+            // 先检查时间查询
+            let handledByRealTimeTools = false;
+            try {
+                const timeKeywords = [
+                    '时间', '几点', '几点了', '现在', '当前时间', 'date', 'time',
+                    '今天', '明天', '昨天', '星期', '周几', '月份', '年月日',
+                    '几点钟', '什么时候', '现在几点', '现在什么时候', '几号', '日期'
+                ];
+                const lowerMessage = message.toLowerCase();
+                const isTimeQuery = timeKeywords.some(keyword => lowerMessage.includes(keyword));
+
+                console.log('是否为时间查询:', isTimeQuery);
+
+                if (isTimeQuery) {
+                    console.log('处理时间查询...');
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = now.getMonth() + 1;
+                    const day = now.getDate();
+                    const hours = now.getHours();
+                    const minutes = now.getMinutes();
+                    const seconds = now.getSeconds();
+
+                    const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                    const weekday = weekdays[now.getDay()];
+
+                    let timeResponse = `### 当前日期信息
+
+#### 中国标准时间（UTC+8）
+📅 **日期**：${year}年${month}月${day}日（${weekday}）
+⏰ **时间**：${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}
+
+#### 东南亚主要城市日期
+| **城市** | **日期** | **工作日状态** |
+|----------|----------|---------------|
+| 雅加达 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
+| 新加坡 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
+| 曼谷 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
+| 胡志明市 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
+| 马尼拉 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |`;
+
+                    // 根据关键词提供更多信息
+                    if (message.includes('今天')) {
+                        timeResponse += `\n\n📅 今天是 ${year}年${month}月${day}日，${weekday}`;
+                    } else if (message.includes('明天')) {
+                        const tomorrow = new Date(now);
+                        tomorrow.setDate(now.getDate() + 1);
+                        const tMonth = tomorrow.getMonth() + 1;
+                        const tDay = tomorrow.getDate();
+                        const tWeekday = weekdays[tomorrow.getDay()];
+                        timeResponse += `\n\n📅 明天是 ${year}年${tMonth}月${tDay}日，${tWeekday}`;
+                    } else if (message.includes('昨天')) {
+                        const yesterday = new Date(now);
+                        yesterday.setDate(now.getDate() - 1);
+                        const yMonth = yesterday.getMonth() + 1;
+                        const yDay = yesterday.getDate();
+                        const yWeekday = weekdays[yesterday.getDay()];
+                        timeResponse += `\n\n📅 昨天是 ${year}年${yMonth}月${yDay}日，${yWeekday}`;
+                    }
+
+                    console.log('时间响应:', timeResponse);
+
+                    // 模拟流式输出
+                    if (timeResponse && onChunk) {
+                        const chunks = timeResponse.split('');
+                        for (let i = 0; i < chunks.length; i++) {
+                            await new Promise(resolve => setTimeout(resolve, 5));
+                            onChunk({ type: 'content', content: chunks.slice(0, i + 1).join('') });
+                        }
+                    }
+                    handledByRealTimeTools = true;
+                    return;
                 }
-            } else {
-                console.warn('实时工具未加载，请求将发送到后端API');
+
+                // 检查天气查询
+                if (!handledByRealTimeTools && /天气|weather|气温|温度|下雨|晴天|阴天|多云|下雪|台风/i.test(message)) {
+                    console.log('处理天气查询...');
+                    try {
+                        // 提取城市名称
+                        let city = 'Beijing';
+                        const cityMatch = message.match(/(.+?)(天气|weather)/i);
+                        if (cityMatch) {
+                            city = cityMatch[1].trim();
+                            // 简单的城市映射
+                            const cityMap = {
+                                '北京': 'Beijing',
+                                '上海': 'Shanghai',
+                                '广州': 'Guangzhou',
+                                '深圳': 'Shenzhen',
+                                '杭州': 'Hangzhou',
+                                '成都': 'Chengdu',
+                                '重庆': 'Chongqing',
+                                '武汉': 'Wuhan',
+                                '南京': 'Nanjing',
+                                '天津': 'Tianjin',
+                                'New York': 'New_York',
+                                'London': 'London',
+                                'Tokyo': 'Tokyo',
+                                'Paris': 'Paris',
+                                '雅加达': 'Jakarta',
+                                '新加坡': 'Singapore',
+                                '曼谷': 'Bangkok',
+                                '胡志明市': 'Ho_Chi_Minh_City',
+                                '马尼拉': 'Manila'
+                            };
+                            if (cityMap[city]) {
+                                city = cityMap[city];
+                            }
+                        }
+
+                        console.log('查询城市:', city);
+                        // 调用 wttr.in API
+                        const weatherUrl = `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`;
+                        const response = await fetch(weatherUrl);
+                        const data = await response.json();
+                        console.log('天气数据:', data);
+
+                        // 解析天气数据
+                        const current = data.current_condition[0];
+                        const forecast = data.weather[0];
+
+                        const weatherText = `### ${city} 实时天气报告
+
+#### 当前天气
+- **状况**：${current.lang_zh[0].value || current.weatherDesc[0].value}
+- **温度**：${current.temp_C}°C（体感 ${current.FeelsLikeC}°C）
+- **湿度**：${current.humidity}%
+- **风速**：${current.windspeedKmph} km/h
+
+#### 明日预报
+- **温度**：${forecast.mintempC}°C - ${forecast.maxtempC}°C
+- **天气**：${forecast.hourly[4].lang_zh[0].value || forecast.hourly[4].weatherDesc[0].value}`;
+
+                        console.log('天气文本:', weatherText);
+
+                        // 模拟流式输出
+                        if (weatherText && onChunk) {
+                            const chunks = weatherText.split('');
+                            for (let i = 0; i < chunks.length; i++) {
+                                await new Promise(resolve => setTimeout(resolve, 5));
+                                onChunk({ type: 'content', content: chunks.slice(0, i + 1).join('') });
+                            }
+                        }
+                        handledByRealTimeTools = true;
+                        return;
+                    } catch (weatherError) {
+                        console.error('天气查询失败:', weatherError);
+                        // 继续发送到后端
+                        handledByRealTimeTools = false;
+                    }
+                }
+
+                if (handledByRealTimeTools) {
+                    console.log('实时工具已处理查询，不发送到后端');
+                    return;
+                } else {
+                    console.log('实时工具未处理查询，发送到后端API');
+                }
+            } catch (error) {
+                console.error('实时工具处理出错:', error);
+                // 发生错误时，继续发送到后端
             }
             // ===== 实时工具集快速响应结束 =====
 
