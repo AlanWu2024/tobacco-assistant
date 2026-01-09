@@ -499,6 +499,42 @@
             box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
 
+        .chat-header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-history-btn,
+        .chat-new-chat-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.6rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .chat-history-btn:hover,
+        .chat-new-chat-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .desktop-only {
+            display: block;
+        }
+
+        .mobile-only {
+            display: none;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.7; transform: scale(1.1); }
@@ -2227,6 +2263,22 @@
             .mobile-nav-menu {
                 display: block;
             }
+
+            .desktop-only {
+                display: none !important;
+            }
+
+            .mobile-only {
+                display: block !important;
+            }
+
+            .history-sidebar {
+                display: none !important;
+            }
+
+            .sidebar-overlay {
+                display: none !important;
+            }
         }
         /* 响应式文字 */
         .mobile-text {
@@ -2241,11 +2293,107 @@
             .mobile-text {
                 display: inline;
             }
-            
+
             .desktop-text {
                 display: none;
             }
         }
+
+        /* 历史对话弹窗样式（手机端） */
+        .history-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-modal {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .history-modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-modal-header h3 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        .history-modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .history-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .history-modal-body {
+            padding: 1rem;
+            max-height: calc(80vh - 70px);
+            overflow-y: auto;
+        }
+
+        .history-modal-item {
+            padding: 1rem;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-modal-item:hover {
+            background: #f8f9fa;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-modal-item-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .history-modal-item-time {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
     </style>
 </head>
 <body>
@@ -2337,7 +2485,15 @@
                             <i class="fas fa-bars"></i>
                         </button>
                         <h2><i class="fas fa-robot"></i> 智能出口助手</h2>
-                        <div class="chat-status">
+                        <div class="chat-header-actions mobile-only">
+                            <button class="chat-history-btn" onclick="showHistoryModal()">
+                                <i class="fas fa-history"></i>
+                            </button>
+                            <button class="chat-new-chat-btn" onclick="createNewChat()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="chat-status desktop-only">
                             <span class="status-dot"></span>
                             <span>在线</span>
                         </div>
@@ -3905,10 +4061,58 @@ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(s
         function toggleHistorySidebar() {
             const sidebar = document.getElementById('historySidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            
+
             if (sidebar && overlay) {
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
+            }
+        }
+
+        // 显示历史对话弹窗（移动端）
+        function showHistoryModal() {
+            const historyList = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+
+            if (historyList.length === 0) {
+                alert('暂无历史对话');
+                return;
+            }
+
+            // 创建弹窗HTML
+            let historyItemsHtml = '';
+            historyList.forEach((conv, index) => {
+                historyItemsHtml += `
+                    <div class="history-modal-item" onclick="loadConversation('${conv.id}'); closeHistoryModal();">
+                        <div class="history-modal-item-title">${conv.title || '对话 ' + (index + 1)}</div>
+                        <div class="history-modal-item-time">${formatDate(new Date(conv.timestamp))}</div>
+                    </div>
+                `;
+            });
+
+            const modalHtml = `
+                <div id="historyModal" class="history-modal-overlay">
+                    <div class="history-modal">
+                        <div class="history-modal-header">
+                            <h3><i class="fas fa-history"></i> 对话历史</h3>
+                            <button class="history-modal-close" onclick="closeHistoryModal()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="history-modal-body">
+                            ${historyItemsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 添加弹窗到页面
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        // 关闭历史对话弹窗
+        function closeHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            if (modal) {
+                modal.remove();
             }
         }
 
