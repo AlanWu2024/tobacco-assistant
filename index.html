@@ -247,9 +247,195 @@
         /* AI出口助手主界面 */
         .assistant-container {
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 280px 1fr 350px;
             gap: 1.5rem;
             margin-bottom: 3rem;
+        }
+
+        /* 历史对话侧边栏 */
+        .history-sidebar {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 160px);
+            position: relative;
+        }
+
+        .history-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color), var(--primary-color));
+        }
+
+        .history-header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .new-chat-btn {
+            margin: 1rem;
+            padding: 0.9rem 1.2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 86, 179, 0.3);
+        }
+
+        .new-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            padding: 1rem;
+            background: linear-gradient(135deg, #f0f7ff, #e8f4ff);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            padding-right: 3rem;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0, 86, 179, 0.15);
+            transform: translateX(5px);
+        }
+
+        .history-item.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .history-item-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-item-time {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .history-item.active .history-item-title {
+            color: white;
+        }
+
+        .history-item.active .history-item-time {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .delete-history-btn {
+            position: absolute;
+            top: 50%;
+            right: 0.8rem;
+            transform: translateY(-50%);
+            background: rgba(220, 53, 69, 0.1);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #dc3545;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+
+        .history-item:hover .delete-history-btn {
+            opacity: 1;
+        }
+
+        .delete-history-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .history-item.active .delete-history-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .history-item.active .delete-history-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 历史切换按钮（移动端） */
+        .history-toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: white;
+            transition: all 0.3s;
+            margin-right: 1rem;
+            display: none;
+        }
+
+        .history-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .close-sidebar-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: white;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .close-sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .chat-area {
@@ -510,8 +696,8 @@
             opacity: 0.7;
             margin-top: 0.8rem;
             margin-bottom: 0.5rem;
-            text-align: right;
-            padding-right: 1rem;
+            text-align: left;
+            padding-left: 1rem;
         }
 
         .chat-input {
@@ -1558,6 +1744,61 @@
             .chat-area {
                 height: calc(100vh - 120px);
             }
+
+            /* 移动端历史对话侧边栏样式 */
+            .history-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 85%;
+                max-width: 350px;
+                height: 100vh;
+                z-index: 2000;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+                border-radius: 0;
+                margin: 0;
+            }
+
+            .history-sidebar.active {
+                transform: translateX(0);
+            }
+
+            .mobile-only {
+                display: block !important;
+            }
+
+            /* 遮罩层 */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        /* 遮罩层 */
+        .sidebar-overlay {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-overlay {
+                display: block;
+            }
+        }
         }
 
         /* 动画效果 */
@@ -2051,6 +2292,9 @@
     </style>
 </head>
 <body>
+    <!-- 历史对话侧边栏遮罩层 -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleHistorySidebar()"></div>
+
     <!-- 导航栏 -->
     <nav class="navbar">
         <div class="navbar-container">
@@ -2111,9 +2355,30 @@
         <!-- AI出口助手 -->
         <section id="assistant" class="fade-in">
             <div class="assistant-container">
+                <!-- 历史对话侧边栏 -->
+                <div class="history-sidebar" id="historySidebar">
+                    <div class="history-header">
+                        <div class="history-title">
+                            <i class="fas fa-history"></i> 对话历史
+                        </div>
+                        <button class="close-sidebar-btn mobile-only" onclick="toggleHistorySidebar()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <button class="new-chat-btn" onclick="createNewChat()">
+                        <i class="fas fa-plus"></i> 新建对话
+                    </button>
+                    <div class="history-list" id="historyList">
+                        <!-- 历史对话列表将在这里动态生成 -->
+                    </div>
+                </div>
+
                 <!-- 聊天区域 -->
                 <div class="chat-area">
                     <div class="chat-header">
+                        <button class="history-toggle-btn mobile-only" onclick="toggleHistorySidebar()">
+                            <i class="fas fa-bars"></i>
+                        </button>
                         <h2><i class="fas fa-robot"></i> 智能出口助手</h2>
                         <div class="chat-status">
                             <span class="status-dot"></span>
@@ -2849,8 +3114,187 @@
             }
         }
 
+        // ==================== 实时工具集快速响应 ====================
+        // 判断是否为时间查询
+        function isTimeQuery(message) {
+            const timeKeywords = [
+                '时间', '几点', '几点了', '现在', '当前时间', 'date', 'time',
+                '今天', '明天', '昨天', '星期', '周几', '月份', '年月日',
+                '几点钟', '什么时候', '现在几点', '现在什么时候', '几号', '日期'
+            ];
+            const lowerMessage = message.toLowerCase();
+            return timeKeywords.some(keyword => lowerMessage.includes(keyword));
+        }
+
+        // 判断是否为天气查询
+        function isWeatherQuery(message) {
+            return /天气|weather|气温|温度|下雨|晴天|阴天|多云|下雪|台风/i.test(message);
+        }
+
+        // 处理时间查询（修复时区问题）
+        async function handleTimeQuery(message, onChunk) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekday = weekdays[now.getDay()];
+
+            // 检查是否需要英文格式
+            if (/^(date|time|what time|current time|what is the time)/i.test(message.toLowerCase())) {
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours % 12 || 12;
+                const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+                const englishWeekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+                const timeResponse = `Current time: ${months[now.getMonth()]} ${now.getDate()}, ${year} (${englishWeekdays[now.getDay()]}) ${displayHours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} ${ampm}`;
+
+                // 模拟流式输出
+                if (timeResponse && onChunk) {
+                    const chunks = timeResponse.split('');
+                    for (let i = 0; i < chunks.length; i++) {
+                        await new Promise(resolve => setTimeout(resolve, 5));
+                        onChunk(chunks.slice(0, i + 1).join(''));
+                    }
+                }
+                return;
+            }
+
+            let timeResponse = `📅 **当前时间**
+
+${year}年${month}月${day}日 ${weekday}
+${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            // 根据关键词提供更多信息
+            if (message.includes('今天')) {
+                timeResponse += `\n\n📌 今天是 ${year}年${month}月${day}日，${weekday}`;
+            } else if (message.includes('明天')) {
+                const tomorrow = new Date(now);
+                tomorrow.setDate(now.getDate() + 1);
+                const tMonth = tomorrow.getMonth() + 1;
+                const tDay = tomorrow.getDate();
+                const tWeekday = weekdays[tomorrow.getDay()];
+                timeResponse += `\n\n📌 明天是 ${year}年${tMonth}月${tDay}日，${tWeekday}`;
+            } else if (message.includes('昨天')) {
+                const yesterday = new Date(now);
+                yesterday.setDate(now.getDate() - 1);
+                const yMonth = yesterday.getMonth() + 1;
+                const yDay = yesterday.getDate();
+                const yWeekday = weekdays[yesterday.getDay()];
+                timeResponse += `\n\n📌 昨天是 ${year}年${yMonth}月${yDay}日，${yWeekday}`;
+            }
+
+            // 模拟流式输出
+            if (timeResponse && onChunk) {
+                const chunks = timeResponse.split('');
+                for (let i = 0; i < chunks.length; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 5));
+                    onChunk(chunks.slice(0, i + 1).join(''));
+                }
+            }
+        }
+
+        // 处理天气查询
+        async function handleWeatherQuery(message, onChunk) {
+            try {
+                // 提取城市名称
+                let city = 'Beijing';
+                const cityMatch = message.match(/(.+?)(天气|weather)/i);
+                if (cityMatch) {
+                    city = cityMatch[1].trim();
+                    // 城市映射
+                    const cityMap = {
+                        '北京': 'Beijing',
+                        '上海': 'Shanghai',
+                        '广州': 'Guangzhou',
+                        '深圳': 'Shenzhen',
+                        '杭州': 'Hangzhou',
+                        '成都': 'Chengdu',
+                        '重庆': 'Chongqing',
+                        '武汉': 'Wuhan',
+                        '南京': 'Nanjing',
+                        '天津': 'Tianjin',
+                        'New York': 'New_York',
+                        'London': 'London',
+                        'Tokyo': 'Tokyo',
+                        'Paris': 'Paris',
+                        '雅加达': 'Jakarta',
+                        '新加坡': 'Singapore',
+                        '曼谷': 'Bangkok'
+                    };
+                    if (cityMap[city]) {
+                        city = cityMap[city];
+                    }
+                }
+
+                // 调用 wttr.in API
+                const weatherUrl = `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`;
+                const response = await fetch(weatherUrl);
+                const data = await response.json();
+
+                // 解析天气数据
+                const current = data.current_condition[0];
+                const forecast = data.weather[0];
+
+                const weatherText = `📍 **${city} 实时天气**
+
+🌡️ 温度：${current.temp_C}°C (体感 ${current.FeelsLikeC}°C)
+💨 风速：${current.windspeedKmph} km/h
+💧 湿度：${current.humidity}%
+☁️ 天气：${current.lang_zh[0].value || current.weatherDesc[0].value}
+
+**明日预报**
+🌡️ 温度：${forecast.mintempC}°C - ${forecast.maxtempC}°C
+☁️ 天气：${forecast.hourly[4].lang_zh[0].value || forecast.hourly[4].weatherDesc[0].value}`;
+
+                // 模拟流式输出
+                if (weatherText && onChunk) {
+                    const chunks = weatherText.split('');
+                    for (let i = 0; i < chunks.length; i++) {
+                        await new Promise(resolve => setTimeout(resolve, 5));
+                        onChunk(chunks.slice(0, i + 1).join(''));
+                    }
+                }
+            } catch (error) {
+                const errorMsg = `抱歉，无法获取天气信息。错误：${error.message}\n\n请稍后再试，或尝试使用联网搜索功能。`;
+                if (errorMsg && onChunk) {
+                    const chunks = errorMsg.split('');
+                    for (let i = 0; i < chunks.length; i++) {
+                        await new Promise(resolve => setTimeout(resolve, 5));
+                        onChunk(chunks.slice(0, i + 1).join(''));
+                    }
+                }
+            }
+        }
+
         // 发送消息到智能体（通过Vercel后端）
         async function sendMessageToAgent(message, onChunk, files = []) {
+            // 先检查实时查询
+            let handledByRealTimeTools = false;
+
+            // 检查时间查询
+            if (isTimeQuery(message)) {
+                await handleTimeQuery(message, onChunk);
+                handledByRealTimeTools = true;
+                return;
+            }
+
+            // 检查天气查询
+            if (!handledByRealTimeTools && isWeatherQuery(message)) {
+                await handleWeatherQuery(message, onChunk);
+                handledByRealTimeTools = true;
+                return;
+            }
+
+            if (handledByRealTimeTools) {
+                return;
+            }
+
             try {
                 // 创建AbortController
                 currentAbortController = new AbortController();
@@ -3025,6 +3469,9 @@
                 } finally {
                     // 隐藏控制按钮
                     hideControlButtons();
+                    
+                    // 保存当前对话到历史记录
+                    saveCurrentConversation();
                 }
             }
         }
@@ -3093,6 +3540,9 @@
                 } finally {
                     // 隐藏控制按钮
                     hideControlButtons();
+                    
+                    // 保存当前对话到历史记录
+                    saveCurrentConversation();
                 }
             }
         }
@@ -3229,7 +3679,319 @@
         window.addEventListener('load', function() {
             console.log('富铖新材料智能出口助手已加载');
             console.log('功能：Markdown渲染 + 复制/下载 + 暂停/停止 + 文件上传 + 响应式设计');
+            
+            // 初始化历史对话功能
+            loadHistoryList();
+            loadCurrentConversation();
         });
+
+        // ==================== 历史对话管理 ====================
+        const HISTORY_STORAGE_KEY = 'chat_history';
+        const MAX_HISTORY_COUNT = 20;
+
+        // 当前对话ID
+        let currentConversationId = null;
+
+        // 保存当前对话到localStorage
+        function saveCurrentConversation() {
+            const chatMessages = document.getElementById('chatMessages');
+            const messages = [];
+            
+            // 遍历所有消息
+            chatMessages.querySelectorAll('.message').forEach(msg => {
+                const type = msg.classList.contains('user') ? 'user' : 'assistant';
+                const contentDiv = msg.querySelector('.message-content');
+                const timeDiv = msg.querySelector('.message-time');
+                
+                let content;
+                if (type === 'user') {
+                    content = msg.querySelector('p').innerText;
+                } else {
+                    content = contentDiv ? contentDiv.innerHTML : '';
+                }
+                
+                const time = timeDiv ? timeDiv.innerText : '';
+                
+                if (content) {
+                    messages.push({
+                        type: type,
+                        content: content,
+                        time: time
+                    });
+                }
+            });
+            
+            // 如果没有消息，不保存
+            if (messages.length === 0) {
+                return;
+            }
+            
+            // 获取历史对话列表
+            let historyList = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+            
+            // 生成对话标题（使用第一条用户消息的前20个字符）
+            const firstUserMessage = messages.find(m => m.type === 'user');
+            const title = firstUserMessage 
+                ? (firstUserMessage.content.length > 20 ? firstUserMessage.content.substring(0, 20) + '...' : firstUserMessage.content)
+                : '新对话';
+            
+            // 生成对话ID
+            const conversationId = currentConversationId || generateConversationId();
+            currentConversationId = conversationId;
+            
+            // 创建对话对象
+            const conversation = {
+                id: conversationId,
+                title: title,
+                messages: messages,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            // 检查是否已存在该对话ID
+            const existingIndex = historyList.findIndex(c => c.id === conversationId);
+            
+            if (existingIndex !== -1) {
+                // 更新现有对话
+                historyList[existingIndex] = conversation;
+                // 将更新的对话移到顶部
+                historyList.splice(existingIndex, 1);
+                historyList.unshift(conversation);
+            } else {
+                // 添加新对话到顶部
+                historyList.unshift(conversation);
+            }
+            
+            // 限制历史对话数量
+            if (historyList.length > MAX_HISTORY_COUNT) {
+                historyList = historyList.slice(0, MAX_HISTORY_COUNT);
+            }
+            
+            // 保存到localStorage
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyList));
+            
+            // 更新历史对话列表显示
+            renderHistoryList(historyList);
+        }
+
+        // 生成对话ID
+        function generateConversationId() {
+            return 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // 加载历史对话列表
+        function loadHistoryList() {
+            const historyList = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+            renderHistoryList(historyList);
+        }
+
+        // 渲染历史对话列表
+        function renderHistoryList(historyList) {
+            const historyListEl = document.getElementById('historyList');
+            
+            if (!historyList || historyList.length === 0) {
+                historyListEl.innerHTML = '<div style="text-align: center; color: #999; padding: 2rem;">暂无历史对话</div>';
+                return;
+            }
+            
+            historyListEl.innerHTML = historyList.map(conv => {
+                const isActive = conv.id === currentConversationId ? 'active' : '';
+                const createdAt = new Date(conv.createdAt);
+                const dateStr = formatDate(createdAt);
+                
+                return `
+                    <div class="history-item ${isActive}" data-id="${conv.id}" onclick="loadConversation('${conv.id}')">
+                        <div class="history-item-title">${escapeHtml(conv.title)}</div>
+                        <div class="history-item-time">${dateStr}</div>
+                        <button class="delete-history-btn" onclick="deleteConversation('${conv.id}', event)" title="删除对话">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 加载指定对话
+        function loadConversation(conversationId) {
+            const historyList = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+            const conversation = historyList.find(c => c.id === conversationId);
+            
+            if (!conversation) {
+                alert('对话不存在或已被删除');
+                return;
+            }
+            
+            // 设置当前对话ID
+            currentConversationId = conversationId;
+            
+            // 清空当前聊天记录
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            
+            // 恢复对话消息
+            conversation.messages.forEach(msg => {
+                if (msg.type === 'user') {
+                    addMessage(msg.content, 'user');
+                } else {
+                    addMessageFromHTML(msg.content, 'assistant');
+                }
+            });
+            
+            // 更新历史对话列表显示
+            renderHistoryList(historyList);
+            
+            // 在移动端关闭侧边栏
+            if (window.innerWidth <= 768) {
+                toggleHistorySidebar();
+            }
+        }
+
+        // 从HTML内容添加消息（用于历史对话恢复）
+        function addMessageFromHTML(content, type) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            if (type === 'assistant') {
+                messageDiv.innerHTML = `
+                    <button class="copy-btn" onclick="copyMessage(this)">
+                        <i class="fas fa-copy"></i> 复制
+                    </button>
+                    <div class="message-content">${content}</div>
+                    <button class="download-btn" onclick="downloadMessage(this)">
+                        <i class="fas fa-download"></i> 下载
+                    </button>
+                    <div class="message-time">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'})}</div>
+                `;
+                
+                // 高亮代码块
+                messageDiv.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 删除对话
+        function deleteConversation(conversationId, event) {
+            event.stopPropagation(); // 阻止事件冒泡
+            
+            if (!confirm('确定要删除这个对话吗？')) {
+                return;
+            }
+            
+            let historyList = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+            historyList = historyList.filter(c => c.id !== conversationId);
+            
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyList));
+            
+            // 如果删除的是当前对话，清空聊天记录
+            if (conversationId === currentConversationId) {
+                currentConversationId = null;
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = `
+                    <div class="message assistant">
+                        <p>您好！我是富铖新材料的智能出口助手。我可以帮您处理以下业务：</p>
+                        <p>📊 <strong>报价计算</strong> • 📝 <strong>合同生成</strong> • 💱 <strong>汇率查询</strong> • 📦 <strong>合规物流</strong></p>
+                        <p>📈 <strong>市场分析</strong> • 💰 <strong>价格查询</strong> • 🏢 <strong>竞品分析</strong> • 🚢 <strong>贸易渠道</strong></p>
+                        <p>📋 <strong>关税服务</strong> • ✅ <strong>认证指导</strong> • ⚠️ <strong>政策预警</strong> • 🌐 <strong>联网搜索</strong></p>
+                        <p><span class="desktop-text">请点击右侧快捷功能</span><span class="mobile-text">请点击下方快捷功能</span>或直接输入您的问题，我将为您提供专业的出口业务支持！</p>
+                        <div class="message-time">刚刚</div>
+                    </div>
+                `;
+            }
+            
+            // 更新历史对话列表
+            renderHistoryList(historyList);
+        }
+
+        // 新建对话
+        function createNewChat() {
+            // 保存当前对话
+            saveCurrentConversation();
+            
+            // 清空当前对话ID
+            currentConversationId = null;
+            
+            // 清空聊天记录
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `
+                <div class="message assistant">
+                    <p>您好！我是富铖新材料的智能出口助手。我可以帮您处理以下业务：</p>
+                    <p>📊 <strong>报价计算</strong> • 📝 <strong>合同生成</strong> • 💱 <strong>汇率查询</strong> • 📦 <strong>合规物流</strong></p>
+                    <p>📈 <strong>市场分析</strong> • 💰 <strong>价格查询</strong> • 🏢 <strong>竞品分析</strong> • 🚢 <strong>贸易渠道</strong></p>
+                    <p>📋 <strong>关税服务</strong> • ✅ <strong>认证指导</strong> • ⚠️ <strong>政策预警</strong> • 🌐 <strong>联网搜索</strong></p>
+                    <p><span class="desktop-text">请点击右侧快捷功能</span><span class="mobile-text">请点击下方快捷功能</span>或直接输入您的问题，我将为您提供专业的出口业务支持！</p>
+                    <div class="message-time">刚刚</div>
+                </div>
+            `;
+            
+            // 更新历史对话列表
+            loadHistoryList();
+            
+            // 在移动端关闭侧边栏
+            if (window.innerWidth <= 768) {
+                toggleHistorySidebar();
+            }
+        }
+
+        // 加载当前对话（页面加载时调用）
+        function loadCurrentConversation() {
+            const historyList = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+            
+            // 如果有历史对话，加载最近的一个
+            if (historyList.length > 0) {
+                const latestConversation = historyList[0];
+                loadConversation(latestConversation.id);
+            }
+        }
+
+        // 切换历史对话侧边栏（移动端）
+        function toggleHistorySidebar() {
+            const sidebar = document.getElementById('historySidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        // 格式化日期
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            // 小于1小时，显示"X分钟前"
+            if (diff < 3600000) {
+                const minutes = Math.floor(diff / 60000);
+                return minutes < 1 ? '刚刚' : `${minutes}分钟前`;
+            }
+            
+            // 小于24小时，显示"X小时前"
+            if (diff < 86400000) {
+                const hours = Math.floor(diff / 3600000);
+                return `${hours}小时前`;
+            }
+            
+            // 小于7天，显示"X天前"
+            if (diff < 604800000) {
+                const days = Math.floor(diff / 86400000);
+                return `${days}天前`;
+            }
+            
+            // 否则显示具体日期
+            return `${date.getMonth() + 1}/${date.getDate()}`;
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
         // 汉堡菜单功能
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileNavMenu');
