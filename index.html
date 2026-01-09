@@ -747,46 +747,13 @@
             box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
         }
 
-
-        /* 控制按钮区域 */
-        .control-buttons {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
+        .chat-input button.stop-button {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
         }
 
-        .control-btn {
-            background: rgba(0, 86, 179, 0.1);
-            border: none;
-            padding: 0.8rem 1.2rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: var(--primary-color);
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .control-btn:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .control-btn.stop {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-        }
-
-        .control-btn.stop:hover {
-            background: #dc3545;
-            color: white;
-        }
-
-        .control-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .chat-input button.stop-button:hover {
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
         }
 
         /* 文件上传按钮 */
@@ -2087,15 +2054,6 @@
                 height: 60px;
             }
 
-            .control-btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 0.85rem;
-            }
-
-            .control-buttons {
-                flex: 1;
-                justify-content: flex-start;
-            }
 
             /* 快捷功能区域 */
             .quick-actions {
@@ -2186,7 +2144,6 @@
         @media (hover: none) and (pointer: coarse) {
             .action-btn,
             .chat-input button,
-            .control-btn,
             .file-upload-btn,
             .copy-btn,
             .download-btn {
@@ -2403,19 +2360,12 @@
                         <button class="file-upload-btn" onclick="document.getElementById('fileInput').click()">
                             <i class="fas fa-plus"></i><span class="btn-text"> 上传</span>
                         </button>
-                        
+
                         <!-- 输入框 -->
                         <input type="text" id="chatInput" placeholder="请输入您的问题，例如：帮我计算FOB报价..." />
-                        
-                        <!-- 控制按钮 -->
-                        <div class="control-buttons">
-                            <button id="stopBtn" class="control-btn stop" onclick="stopGeneration()" style="display:none;">
-                                <i class="fas fa-stop"></i> 停止
-                            </button>
-                        </div>
-                        
-                        <!-- 发送按钮 -->
-                        <button id="sendBtn" onclick="sendMessage()">
+
+                        <!-- 发送/停止按钮 -->
+                        <button id="sendBtn" onclick="handleSendStop()">
                             <i class="fas fa-arrow-up"></i><span class="btn-text"> 发送</span>
                         </button>
                     </div>
@@ -3412,9 +3362,9 @@ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(s
 
                 // 显示"正在思考"状态
                 const thinkingId = addThinkingMessage();
-                
-                // 显示控制按钮
-                showControlButtons();
+
+                // 设置发送按钮为停止状态
+                setSendButtonToStop();
                 shouldStop = false;
                 
                 let assistantMessageAdded = false;
@@ -3464,9 +3414,9 @@ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(s
                     addMessage('抱歉，服务暂时无法使用，请稍后再试。', 'assistant');
                     console.error('Error:', error);
                 } finally {
-                    // 隐藏控制按钮
-                    hideControlButtons();
-                    
+                    // 设置发送按钮为正常状态
+                    setSendButtonToNormal();
+
                     // 保存当前对话到历史记录
                     saveCurrentConversation();
                 }
@@ -3483,9 +3433,9 @@ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(s
 
                 // 显示"正在思考"状态
                 const thinkingId = addThinkingMessage();
-                
-                // 显示控制按钮
-                showControlButtons();
+
+                // 设置发送按钮为停止状态
+                setSendButtonToStop();
                 shouldStop = false;
                 
                 let assistantMessageAdded = false;
@@ -3535,9 +3485,9 @@ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(s
                     addMessage('抱歉，服务暂时无法使用，请稍后再试。', 'assistant');
                     console.error('Error:', error);
                 } finally {
-                    // 隐藏控制按钮
-                    hideControlButtons();
-                    
+                    // 设置发送按钮为正常状态
+                    setSendButtonToNormal();
+
                     // 保存当前对话到历史记录
                     saveCurrentConversation();
                 }
@@ -3600,20 +3550,45 @@ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(s
                 currentReader.cancel();
                 currentReader = null;
             }
-            hideControlButtons();
+            setSendButtonToNormal();
         }
 
-        // 显示控制按钮
-        function showControlButtons() {
-            document.getElementById('stopBtn').style.display = 'flex';
-            document.getElementById('sendBtn').disabled = true;
+        // 发送/停止按钮处理
+        let isGenerating = false;
+
+        function handleSendStop() {
+            if (isGenerating) {
+                stopGeneration();
+            } else {
+                sendMessage();
+            }
         }
 
-        // 隐藏控制按钮
-        function hideControlButtons() {
-            document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('sendBtn').disabled = false;
+        // 设置发送按钮为停止状态
+        function setSendButtonToStop() {
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.innerHTML = '<i class="fas fa-stop"></i><span class="btn-text"> 停止</span>';
+            sendBtn.classList.add('stop-button');
+            isGenerating = true;
+        }
+
+        // 设置发送按钮为正常状态
+        function setSendButtonToNormal() {
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.innerHTML = '<i class="fas fa-arrow-up"></i><span class="btn-text"> 发送</span>';
+            sendBtn.classList.remove('stop-button');
+            isGenerating = false;
             shouldStop = false;
+        }
+
+        // 显示控制按钮（已废弃，不再使用）
+        function showControlButtons() {
+            // 不再需要，因为发送按钮会自动变成停止按钮
+        }
+
+        // 隐藏控制按钮（已废弃，不再使用）
+        function hideControlButtons() {
+            // 不再需要，因为发送按钮会自动变回发送状态
         }
 
         // 文件上传处理
