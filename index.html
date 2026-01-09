@@ -14,8 +14,150 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <!-- xlsx 用于解析 Excel 文件 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- 注意：时间和天气功能已直接集成到 sendMessageToAgent 函数中，无需外部JS文件 -->
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0056b3;
+            --primary-dark: #004494;
+            --primary-light: #007bff;
+            --secondary-color: #17a2b8;
+            --accent-color: #20c997;
+            --bg-gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-gradient-2: linear-gradient(135deg, #0056b3 0%, #004494 100%);
+            --bg-gradient-3: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #0056b3 100%);
+            --text-color: #333;
+            --light-text: #666;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+            --shadow-glow: 0 0 30px rgba(0, 86, 179, 0.3);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(180deg, #f0f4ff 0%, #ffffff 100%);
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            color: #333;
+            padding: 0.8rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .navbar-container {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo img {
+            height: 45px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .logo img:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0056b3, #17a2b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .logo-text p {
+            font-size: 0.7rem;
+            color: var(--light-text);
+            margin-top: 2px;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-menu a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::before,
+        .nav-menu a.active::before {
+            width: 80%;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: linear-gradient(135deg, rgba(0, 86, 179, 0.1), rgba(23, 162, 184, 0.1));
+            color: var(--primary-color);
+        }
+
         /* 主内容区域 */
         .main-content {
             margin-top: 80px;
@@ -152,37 +294,6 @@
             font-size: 1.2rem;
         }
 
-        .chat-header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .chat-header-right {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .chat-header-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .chat-header-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-
         .chat-status {
             display: flex;
             align-items: center;
@@ -200,140 +311,6 @@
             border-radius: 50%;
             animation: pulse 2s infinite;
             box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-        }
-
-        /* 历史对话侧边栏 */
-        .history-sidebar {
-            position: fixed;
-            top: 80px;
-            left: -400px;
-            width: 380px;
-            height: calc(100vh - 80px);
-            background: white;
-            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
-            transition: left 0.3s ease;
-            z-index: 1001;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .history-sidebar.open {
-            left: 0;
-        }
-
-        .history-sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e8e8e8;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-sidebar-header h3 {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            margin: 0;
-        }
-
-        .close-history-btn {
-            background: none;
-            border: none;
-            color: #666;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .close-history-btn:hover {
-            background: #f5f5f5;
-            color: var(--primary-color);
-        }
-
-        .history-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-        }
-
-        .history-item {
-            padding: 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 0.5rem;
-            border: 1px solid #e8e8e8;
-        }
-
-        .history-item:hover {
-            background: #f8f9fa;
-            border-color: var(--primary-color);
-        }
-
-        .history-item.active {
-            background: linear-gradient(135deg, rgba(0, 86, 179, 0.1), rgba(23, 162, 184, 0.1));
-            border-color: var(--primary-color);
-        }
-
-        .history-item-title {
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .history-item-time {
-            font-size: 0.85rem;
-            color: var(--light-text);
-        }
-
-        .history-item-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .history-item-action-btn {
-            padding: 0.3rem 0.6rem;
-            border: 1px solid #e8e8e8;
-            background: white;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .history-item-action-btn:hover {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .history-item-action-btn.delete:hover {
-            background: #dc3545;
-            border-color: #dc3545;
-        }
-
-        .history-empty {
-            text-align: center;
-            padding: 2rem;
-            color: var(--light-text);
-        }
-
-        .history-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            display: none;
-        }
-
-        .history-overlay.show {
-            display: block;
         }
 
         @keyframes pulse {
@@ -503,6 +480,9 @@
 
         /* 复制按钮 */
         .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
             background: rgba(0, 86, 179, 0.1);
             border: none;
             padding: 0.5rem 1rem;
@@ -511,7 +491,7 @@
             font-size: 0.85rem;
             color: var(--primary-color);
             transition: all 0.3s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 0.3rem;
         }
@@ -530,29 +510,21 @@
             opacity: 0.7;
             margin-top: 0.8rem;
             margin-bottom: 0.5rem;
-            text-align: left;
+            text-align: right;
             padding-right: 1rem;
         }
 
         .chat-input {
-            padding: 1.5rem 2rem !important;
+            padding: 1.5rem 2rem;
             border-top: 1px solid #e8e8e8;
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 1rem !important;
-            align-items: center !important;
+            display: flex;
+            gap: 1rem;
             background: white;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
-            min-width: 0 !important;
-            width: 100% !important;
         }
 
-        .chat-input input[type="text"] {
-            flex: 1 1 auto !important;
-            min-width: 0 !important;
-            width: 0 !important;  /* 改为0，让flex-grow完全控制 */
-            max-width: none !important;
+        .chat-input input {
+            flex: 1;
             padding: 1rem 1.5rem;
             border: 2px solid #e8e8e8;
             border-radius: 25px;
@@ -568,50 +540,33 @@
             background: white;
         }
 
-        .chat-input #sendBtn {
+        .chat-input button {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
             color: white;
             border: none;
-            padding: 1rem 2.5rem !important;
+            padding: 1rem 2.5rem;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
             transition: all 0.3s;
-            display: flex !important;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
             box-shadow: 0 4px 15px rgba(0, 86, 179, 0.3);
-            flex: 0 0 auto !important;
-            flex-shrink: 0 !important;
-            width: auto !important;
         }
 
-        .chat-input #sendBtn:hover {
+        .chat-input button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 86, 179, 0.4);
-        }
-
-        /* 停止按钮的hover效果 */
-        .chat-input #sendBtn.stop-btn {
-            background: linear-gradient(135deg, #dc3545, #c82333) !important;
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-        }
-
-        .chat-input #sendBtn.stop-btn:hover {
-            background: linear-gradient(135deg, #c82333, #bd2130) !important;
-            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
-            transform: translateY(-2px);
         }
 
 
         /* 控制按钮区域 */
         .control-buttons {
-            display: none !important;
+            display: flex;
             gap: 0.5rem;
             align-items: center;
-            flex: 0 0 auto !important;
-            visibility: hidden !important;
         }
 
         .control-btn {
@@ -652,18 +607,15 @@
         .file-upload-btn {
             background: rgba(32, 201, 151, 0.1);
             border: none;
-            padding: 0.8rem 1.2rem !important;
+            padding: 0.8rem 1.2rem;
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.9rem;
             color: var(--accent-color);
             transition: all 0.3s;
-            display: flex !important;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            flex: 0 0 auto !important;
-            flex-shrink: 0 !important;
-            width: auto !important;
         }
 
         .file-upload-btn:hover {
@@ -758,6 +710,9 @@
 
         /* 下载按钮 */
         .download-btn {
+            position: absolute;
+            bottom: 0.5rem;
+            right: 0.5rem;
             background: rgba(32, 201, 151, 0.1);
             border: none;
             padding: 0.5rem 1rem;
@@ -766,10 +721,9 @@
             font-size: 0.85rem;
             color: var(--accent-color);
             transition: all 0.3s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 0.3rem;
-            margin-left: 0.5rem;
         }
 
         .download-btn:hover {
@@ -777,7 +731,7 @@
             color: white;
         }
 
-        .chat-input #sendBtn:active {
+        .chat-input button:active {
             transform: translateY(0);
         }
 
@@ -1513,43 +1467,6 @@
             opacity: 0.9;
         }
 
-        /* PC端样式 (>= 1201px) - 确保PC端布局正确 */
-        @media (min-width: 1201px) {
-            .chat-input {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                gap: 1rem !important;
-                align-items: center !important;
-                padding: 1.5rem 2rem !important;
-            }
-
-            .chat-input input[type="text"] {
-                flex: 1 1 auto !important;
-                min-width: 0 !important;
-                width: 0 !important;
-            }
-
-            .chat-input .file-upload-btn {
-                flex: 0 0 auto !important;
-                flex-shrink: 0 !important;
-                width: auto !important;
-                display: flex !important;
-            }
-
-            .chat-input #sendBtn {
-                flex: 0 0 auto !important;
-                flex-shrink: 0 !important;
-                width: auto !important;
-                display: flex !important;
-            }
-
-            .chat-input .control-buttons {
-                display: none !important;
-                visibility: hidden !important;
-            }
-        }
-
         /* 响应式设计 */
         @media (max-width: 1400px) {
             .assistant-container {
@@ -1842,32 +1759,35 @@
             .chat-input {
                 padding: 0.8rem;
                 display: flex;
-                flex-wrap: nowrap;
-                gap: 0.6rem;
+                flex-wrap: wrap;
+                gap: 0.8rem;
                 align-items: center;
             }
 
             .chat-input input[type="text"] {
-                flex: 1;
-                min-width: 0;
+                flex: 1 1 100%;
+                width: 100%;
                 padding: 0.8rem 1rem;
                 font-size: 0.9rem;
+                order: 1;
             }
 
             .file-upload-btn {
-                width: 44px;
-                height: 44px;
-                min-width: 44px;
-                min-height: 44px;
-                max-width: 44px;
-                max-height: 44px;
+                width: 48px;
+                height: 48px;
+                min-width: 48px;
+                min-height: 48px;
+                max-width: 48px;
+                max-height: 48px;
                 padding: 0;
                 border-radius: 50%;
-                font-size: 1.2rem;
+                font-size: 1.3rem;
+                order: 2;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
+                margin-right: auto;
             }
 
             .file-upload-btn i {
@@ -1875,23 +1795,25 @@
             }
 
             .chat-input #sendBtn {
-                width: 44px !important;
-                height: 44px !important;
-                min-width: 44px !important;
-                min-height: 44px !important;
-                max-width: 44px !important;
-                max-height: 44px !important;
-                padding: 0 !important;
-                border-radius: 50% !important;
-                font-size: 1.2rem;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                flex-shrink: 0 !important;
+                width: 48px;
+                height: 48px;
+                min-width: 48px;
+                min-height: 48px;
+                max-width: 48px;
+                max-height: 48px;
+                padding: 0;
+                border-radius: 50%;
+                font-size: 1.3rem;
+                order: 3;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                margin-left: auto;
             }
 
             .chat-input #sendBtn i {
-                margin: 0 !important;
+                margin: 0;
             }
 
             .file-upload-btn .btn-text,
@@ -1930,7 +1852,8 @@
             }
 
             .control-buttons {
-                display: none;
+                flex: 1;
+                justify-content: flex-start;
             }
 
             /* 快捷功能区域 */
@@ -2191,20 +2114,10 @@
                 <!-- 聊天区域 -->
                 <div class="chat-area">
                     <div class="chat-header">
-                        <div class="chat-header-left">
-                            <h2><i class="fas fa-robot"></i> 智能出口助手</h2>
-                            <div class="chat-status">
-                                <span class="status-dot"></span>
-                                <span>在线</span>
-                            </div>
-                        </div>
-                        <div class="chat-header-right">
-                            <button class="chat-header-btn" onclick="showHistory()" title="历史对话">
-                                <i class="fas fa-history"></i>
-                            </button>
-                            <button class="chat-header-btn" onclick="newConversation()" title="新建对话">
-                                <i class="fas fa-plus"></i>
-                            </button>
+                        <h2><i class="fas fa-robot"></i> 智能出口助手</h2>
+                        <div class="chat-status">
+                            <span class="status-dot"></span>
+                            <span>在线</span>
                         </div>
                     </div>
                     <div class="chat-messages" id="chatMessages">
@@ -2314,20 +2227,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- 历史对话侧边栏 -->
-        <div class="history-overlay" id="historyOverlay" onclick="closeHistory()"></div>
-        <div class="history-sidebar" id="historySidebar">
-            <div class="history-sidebar-header">
-                <h3><i class="fas fa-history"></i> 历史对话</h3>
-                <button class="close-history-btn" onclick="closeHistory()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="history-list" id="historyList">
-                <!-- 历史对话列表将通过JavaScript动态生成 -->
-            </div>
-        </div>
 
         <!-- 企业介绍 -->
         <section id="about" class="page-section fade-in">
@@ -2594,230 +2493,6 @@
             apiKey: 'YOUR_API_KEY', // 你的API密钥
             botId: 'YOUR_BOT_ID' // 如果需要的话
         };
-
-        // ==================== 历史对话功能 ====================
-        let currentConversationId = null;
-        let conversations = [];
-
-        // 初始化历史对话
-        function initHistory() {
-            try {
-                const saved = localStorage.getItem('chat_conversations');
-                if (saved) {
-                    conversations = JSON.parse(saved);
-                }
-                updateHistoryUI();
-            } catch (error) {
-                console.error('加载历史对话失败:', error);
-            }
-        }
-
-        // 保存对话到历史
-        function saveConversation() {
-            const chatMessages = document.getElementById('chatMessages');
-            const messages = [];
-
-            // 收集所有消息
-            chatMessages.querySelectorAll('.message').forEach(msg => {
-                const type = msg.classList.contains('user') ? 'user' : 'assistant';
-                const contentDiv = msg.querySelector('.message-content');
-                const content = contentDiv ? contentDiv.innerHTML : msg.innerText;
-
-                messages.push({
-                    type: type,
-                    content: content,
-                    time: new Date().toISOString()
-                });
-            });
-
-            // 如果是新建对话，创建新记录
-            if (!currentConversationId) {
-                currentConversationId = Date.now().toString();
-                const firstUserMsg = messages.find(m => m.type === 'user');
-                const title = firstUserMsg ?
-                    (firstUserMsg.content.replace(/<[^>]*>/g, '').substring(0, 30) + '...') :
-                    '新建对话';
-
-                const conversation = {
-                    id: currentConversationId,
-                    title: title,
-                    messages: messages,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                };
-
-                conversations.unshift(conversation);
-
-                // 只保留最近20条对话
-                if (conversations.length > 20) {
-                    conversations = conversations.slice(0, 20);
-                }
-            } else {
-                // 更新现有对话
-                const index = conversations.findIndex(c => c.id === currentConversationId);
-                if (index !== -1) {
-                    conversations[index].messages = messages;
-                    conversations[index].updatedAt = new Date().toISOString();
-                }
-            }
-
-            // 保存到localStorage
-            try {
-                localStorage.setItem('chat_conversations', JSON.stringify(conversations));
-                updateHistoryUI();
-            } catch (error) {
-                console.error('保存对话失败:', error);
-            }
-        }
-
-        // 新建对话
-        function newConversation() {
-            // 先保存当前对话
-            saveConversation();
-
-            // 清空对话
-            currentConversationId = null;
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = `
-                <div class="message assistant">
-                    <p>您好！我是富铖新材料的智能出口助手。我可以帮您处理以下业务：</p>
-                    <p>📊 <strong>报价计算</strong> • 📝 <strong>合同生成</strong> • 💱 <strong>汇率查询</strong> • 📦 <strong>合规物流</strong></p>
-                    <p>📈 <strong>市场分析</strong> • 💰 <strong>价格查询</strong> • 🏢 <strong>竞品分析</strong> • 🚢 <strong>贸易渠道</strong></p>
-                    <p>📋 <strong>关税服务</strong> • ✅ <strong>认证指导</strong> • ⚠️ <strong>政策预警</strong> • 🌐 <strong>联网搜索</strong></p>
-                    <p><span class="desktop-text">请点击右侧快捷功能</span><span class="mobile-text">请点击下方快捷功能</span>或直接输入您的问题，我将为您提供专业的出口业务支持！</p>
-                    <div class="message-time">刚刚</div>
-                </div>
-            `;
-
-            console.log('已创建新对话');
-        }
-
-        // 加载历史对话
-        function loadConversation(conversationId) {
-            const conversation = conversations.find(c => c.id === conversationId);
-            if (!conversation) return;
-
-            // 先保存当前对话
-            if (currentConversationId && currentConversationId !== conversationId) {
-                saveConversation();
-            }
-
-            currentConversationId = conversationId;
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = '';
-
-            // 加载消息
-            conversation.messages.forEach(msg => {
-                const msgDiv = document.createElement('div');
-                msgDiv.className = `message ${msg.type}`;
-                msgDiv.innerHTML = `
-                    <div class="message-content">${msg.content}</div>
-                    <div class="message-time">${formatMessageTime(msg.time)}</div>
-                `;
-                chatMessages.appendChild(msgDiv);
-            });
-
-            // 重新高亮代码
-            chatMessages.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-
-            closeHistory();
-            console.log('已加载对话:', conversation.title);
-        }
-
-        // 删除历史对话
-        function deleteConversation(conversationId, event) {
-            event.stopPropagation();
-
-            if (confirm('确定要删除这条对话吗？')) {
-                conversations = conversations.filter(c => c.id !== conversationId);
-                try {
-                    localStorage.setItem('chat_conversations', JSON.stringify(conversations));
-                    updateHistoryUI();
-
-                    // 如果删除的是当前对话，新建一个
-                    if (currentConversationId === conversationId) {
-                        newConversation();
-                    }
-                } catch (error) {
-                    console.error('删除对话失败:', error);
-                }
-            }
-        }
-
-        // 显示历史对话侧边栏
-        function showHistory() {
-            updateHistoryUI();
-            document.getElementById('historySidebar').classList.add('open');
-            document.getElementById('historyOverlay').classList.add('show');
-        }
-
-        // 关闭历史对话侧边栏
-        function closeHistory() {
-            document.getElementById('historySidebar').classList.remove('open');
-            document.getElementById('historyOverlay').classList.remove('show');
-        }
-
-        // 更新历史对话UI
-        function updateHistoryUI() {
-            const historyList = document.getElementById('historyList');
-
-            if (conversations.length === 0) {
-                historyList.innerHTML = `
-                    <div class="history-empty">
-                        <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 1rem; color: #ccc;"></i>
-                        <p>暂无历史对话</p>
-                    </div>
-                `;
-                return;
-            }
-
-            historyList.innerHTML = conversations.map(conv => {
-                const isActive = conv.id === currentConversationId;
-                const date = new Date(conv.updatedAt);
-                const timeStr = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
-
-                return `
-                    <div class="history-item ${isActive ? 'active' : ''}" onclick="loadConversation('${conv.id}')">
-                        <div class="history-item-title">${escapeHtml(conv.title)}</div>
-                        <div class="history-item-time">${timeStr}</div>
-                        <div class="history-item-actions">
-                            <button class="history-item-action-btn delete" onclick="deleteConversation('${conv.id}', event)">
-                                <i class="fas fa-trash"></i> 删除
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // 格式化消息时间
-        function formatMessageTime(isoString) {
-            const date = new Date(isoString);
-            const now = new Date();
-            const diff = now - date;
-
-            if (diff < 60000) return '刚刚';
-            if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`;
-            if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`;
-
-            return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
-        }
-
-        // HTML转义
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            initHistory();
-        });
-
-        // ==================== 历史对话功能结束 ====================
 
          // 文件上传相关
         let uploadedFiles = [];
@@ -3145,17 +2820,15 @@
                 });
                 
                 content = marked.parse(text);
-                
+
                 messageDiv.innerHTML = `
-                    <div style="margin-bottom: 0.8rem;">
-                        <button class="copy-btn" onclick="copyMessage(this)">
-                            <i class="fas fa-copy"></i> 复制
-                        </button>
-                        <button class="download-btn" onclick="downloadMessage(this)">
-                            <i class="fas fa-download"></i> 下载
-                        </button>
-                    </div>
+                    <button class="copy-btn" onclick="copyMessage(this)">
+                        <i class="fas fa-copy"></i> 复制
+                    </button>
                     <div class="message-content">${content}</div>
+                    <button class="download-btn" onclick="downloadMessage(this)">
+                        <i class="fas fa-download"></i> 下载
+                    </button>
                     <div class="message-time">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'})}</div>
                 `;
             } else {
@@ -3178,174 +2851,6 @@
 
         // 发送消息到智能体（通过Vercel后端）
         async function sendMessageToAgent(message, onChunk, files = []) {
-            // ===== 实时工具集快速响应 =====
-            console.log('=== 实时工具检查 ===');
-            console.log('检测消息:', message);
-
-            // 先检查时间查询
-            let handledByRealTimeTools = false;
-            try {
-                const timeKeywords = [
-                    '时间', '几点', '几点了', '现在', '当前时间', 'date', 'time',
-                    '今天', '明天', '昨天', '星期', '周几', '月份', '年月日',
-                    '几点钟', '什么时候', '现在几点', '现在什么时候', '几号', '日期'
-                ];
-                const lowerMessage = message.toLowerCase();
-                const isTimeQuery = timeKeywords.some(keyword => lowerMessage.includes(keyword));
-
-                console.log('是否为时间查询:', isTimeQuery);
-
-                if (isTimeQuery) {
-                    console.log('处理时间查询...');
-                    const now = new Date();
-                    const year = now.getFullYear();
-                    const month = now.getMonth() + 1;
-                    const day = now.getDate();
-                    const hours = now.getHours();
-                    const minutes = now.getMinutes();
-                    const seconds = now.getSeconds();
-
-                    const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-                    const weekday = weekdays[now.getDay()];
-
-                    let timeResponse = `### 当前日期信息
-
-#### 中国标准时间（UTC+8）
-📅 **日期**：${year}年${month}月${day}日（${weekday}）
-⏰ **时间**：${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}
-
-#### 东南亚主要城市日期
-| **城市** | **日期** | **工作日状态** |
-|----------|----------|---------------|
-| 雅加达 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
-| 新加坡 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
-| 曼谷 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
-| 胡志明市 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |
-| 马尼拉 | ${year}年${month}月${day}日 | ${hours >= 9 && hours < 18 ? '工作中' : '非工作时间'} |`;
-
-                    // 根据关键词提供更多信息
-                    if (message.includes('今天')) {
-                        timeResponse += `\n\n📅 今天是 ${year}年${month}月${day}日，${weekday}`;
-                    } else if (message.includes('明天')) {
-                        const tomorrow = new Date(now);
-                        tomorrow.setDate(now.getDate() + 1);
-                        const tMonth = tomorrow.getMonth() + 1;
-                        const tDay = tomorrow.getDate();
-                        const tWeekday = weekdays[tomorrow.getDay()];
-                        timeResponse += `\n\n📅 明天是 ${year}年${tMonth}月${tDay}日，${tWeekday}`;
-                    } else if (message.includes('昨天')) {
-                        const yesterday = new Date(now);
-                        yesterday.setDate(now.getDate() - 1);
-                        const yMonth = yesterday.getMonth() + 1;
-                        const yDay = yesterday.getDate();
-                        const yWeekday = weekdays[yesterday.getDay()];
-                        timeResponse += `\n\n📅 昨天是 ${year}年${yMonth}月${yDay}日，${yWeekday}`;
-                    }
-
-                    console.log('时间响应:', timeResponse);
-
-                    // 模拟流式输出（直接传递字符串）
-                    if (timeResponse && onChunk) {
-                        const chunks = timeResponse.split('');
-                        for (let i = 0; i < chunks.length; i++) {
-                            await new Promise(resolve => setTimeout(resolve, 5));
-                            onChunk(chunks.slice(0, i + 1).join(''));
-                        }
-                    }
-                    handledByRealTimeTools = true;
-                    return;
-                }
-
-                // 检查天气查询
-                if (!handledByRealTimeTools && /天气|weather|气温|温度|下雨|晴天|阴天|多云|下雪|台风/i.test(message)) {
-                    console.log('处理天气查询...');
-                    try {
-                        // 提取城市名称
-                        let city = 'Beijing';
-                        const cityMatch = message.match(/(.+?)(天气|weather)/i);
-                        if (cityMatch) {
-                            city = cityMatch[1].trim();
-                            // 简单的城市映射
-                            const cityMap = {
-                                '北京': 'Beijing',
-                                '上海': 'Shanghai',
-                                '广州': 'Guangzhou',
-                                '深圳': 'Shenzhen',
-                                '杭州': 'Hangzhou',
-                                '成都': 'Chengdu',
-                                '重庆': 'Chongqing',
-                                '武汉': 'Wuhan',
-                                '南京': 'Nanjing',
-                                '天津': 'Tianjin',
-                                'New York': 'New_York',
-                                'London': 'London',
-                                'Tokyo': 'Tokyo',
-                                'Paris': 'Paris',
-                                '雅加达': 'Jakarta',
-                                '新加坡': 'Singapore',
-                                '曼谷': 'Bangkok',
-                                '胡志明市': 'Ho_Chi_Minh_City',
-                                '马尼拉': 'Manila'
-                            };
-                            if (cityMap[city]) {
-                                city = cityMap[city];
-                            }
-                        }
-
-                        console.log('查询城市:', city);
-                        // 调用 wttr.in API
-                        const weatherUrl = `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=zh`;
-                        const response = await fetch(weatherUrl);
-                        const data = await response.json();
-                        console.log('天气数据:', data);
-
-                        // 解析天气数据
-                        const current = data.current_condition[0];
-                        const forecast = data.weather[0];
-
-                        const weatherText = `### ${city} 实时天气报告
-
-#### 当前天气
-- **状况**：${current.lang_zh[0].value || current.weatherDesc[0].value}
-- **温度**：${current.temp_C}°C（体感 ${current.FeelsLikeC}°C）
-- **湿度**：${current.humidity}%
-- **风速**：${current.windspeedKmph} km/h
-
-#### 明日预报
-- **温度**：${forecast.mintempC}°C - ${forecast.maxtempC}°C
-- **天气**：${forecast.hourly[4].lang_zh[0].value || forecast.hourly[4].weatherDesc[0].value}`;
-
-                        console.log('天气文本:', weatherText);
-
-                        // 模拟流式输出（直接传递字符串）
-                        if (weatherText && onChunk) {
-                            const chunks = weatherText.split('');
-                            for (let i = 0; i < chunks.length; i++) {
-                                await new Promise(resolve => setTimeout(resolve, 5));
-                                onChunk(chunks.slice(0, i + 1).join(''));
-                            }
-                        }
-                        handledByRealTimeTools = true;
-                        return;
-                    } catch (weatherError) {
-                        console.error('天气查询失败:', weatherError);
-                        // 继续发送到后端
-                        handledByRealTimeTools = false;
-                    }
-                }
-
-                if (handledByRealTimeTools) {
-                    console.log('实时工具已处理查询，不发送到后端');
-                    return;
-                } else {
-                    console.log('实时工具未处理查询，发送到后端API');
-                }
-            } catch (error) {
-                console.error('实时工具处理出错:', error);
-                // 发生错误时，继续发送到后端
-            }
-            // ===== 实时工具集快速响应结束 =====
-
             try {
                 // 创建AbortController
                 currentAbortController = new AbortController();
@@ -3520,8 +3025,6 @@
                 } finally {
                     // 隐藏控制按钮
                     hideControlButtons();
-                    // 保存对话到历史
-                    saveConversation();
                 }
             }
         }
@@ -3671,36 +3174,16 @@
 
         // 显示控制按钮
         function showControlButtons() {
-            // 隐藏暂停和停止按钮
-            document.getElementById('pauseBtn').style.display = 'none';
-            document.getElementById('stopBtn').style.display = 'none';
-
-            // 将发送按钮改为停止按钮
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.innerHTML = '<i class="fas fa-stop"></i><span class="btn-text"> 停止</span>';
-            sendBtn.setAttribute('onclick', 'stopGeneration()');
-            sendBtn.classList.add('stop-btn');  // 添加停止按钮样式
-            // 直接设置红色背景，确保能够正确显示
-            sendBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
-            sendBtn.style.boxShadow = '0 4px 15px rgba(220, 53, 69, 0.3)';
+            document.getElementById('pauseBtn').style.display = 'flex';
+            document.getElementById('stopBtn').style.display = 'flex';
+            document.getElementById('sendBtn').disabled = true;
         }
 
         // 隐藏控制按钮
         function hideControlButtons() {
-            // 隐藏暂停和停止按钮
             document.getElementById('pauseBtn').style.display = 'none';
             document.getElementById('stopBtn').style.display = 'none';
-
-            // 将停止按钮恢复为发送按钮
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.innerHTML = '<i class="fas fa-arrow-up"></i><span class="btn-text"> 发送</span>';
-            sendBtn.setAttribute('onclick', 'sendMessage()');
-            sendBtn.classList.remove('stop-btn');  // 移除停止按钮样式
-            // 恢复蓝色背景
-            sendBtn.style.background = 'linear-gradient(135deg, var(--primary-color), var(--primary-light))';
-            sendBtn.style.boxShadow = '0 4px 15px rgba(0, 86, 179, 0.3)';
-            sendBtn.disabled = false;
-
+            document.getElementById('sendBtn').disabled = false;
             isPaused = false;
             shouldStop = false;
         }
