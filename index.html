@@ -2409,9 +2409,6 @@
                         
                         <!-- 控制按钮 -->
                         <div class="control-buttons">
-                            <button id="pauseBtn" class="control-btn" onclick="togglePause()" style="display:none;">
-                                <i class="fas fa-pause"></i> 暂停
-                            </button>
                             <button id="stopBtn" class="control-btn stop" onclick="stopGeneration()" style="display:none;">
                                 <i class="fas fa-stop"></i> 停止
                             </button>
@@ -3590,22 +3587,6 @@ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(s
             URL.revokeObjectURL(url);
         }
 
-        // 暂停/继续控制
-        let isPaused = false;
-        let currentReader = null;
-        let currentAbortController = null;
-
-        function togglePause() {
-            isPaused = !isPaused;
-            const pauseBtn = document.getElementById('pauseBtn');
-            
-            if (isPaused) {
-                pauseBtn.innerHTML = '<i class="fas fa-play"></i> 继续';
-            } else {
-                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 暂停';
-            }
-        }
-
         // 停止生成
         let shouldStop = false;
 
@@ -3624,17 +3605,14 @@ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(s
 
         // 显示控制按钮
         function showControlButtons() {
-            document.getElementById('pauseBtn').style.display = 'flex';
             document.getElementById('stopBtn').style.display = 'flex';
             document.getElementById('sendBtn').disabled = true;
         }
 
         // 隐藏控制按钮
         function hideControlButtons() {
-            document.getElementById('pauseBtn').style.display = 'none';
             document.getElementById('stopBtn').style.display = 'none';
             document.getElementById('sendBtn').disabled = false;
-            isPaused = false;
             shouldStop = false;
         }
 
